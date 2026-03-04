@@ -247,7 +247,15 @@ class CameraLauncher : CordovaPlugin() {
 
             }
             "editPicture" -> callEditImage(args)
-            "editURIPicture" -> callEditUriImage(args)
+            "editURIPicture" -> {
+                editParameters = IONEditParameters(
+                    args.getJSONObject(0).getString(URI),
+                    true,
+                    args.getJSONObject(0).getBoolean(SAVE_TO_GALLERY),
+                    args.getJSONObject(0).getBoolean(INCLUDE_METADATA)
+                )
+                callEditUriImage(editParameters)
+            }
             "recordVideo" -> {
                 saveVideoToGallery = args.getJSONObject(0).getBoolean(SAVE_TO_GALLERY)
                 includeMetadata = args.getJSONObject(0).getBoolean(INCLUDE_METADATA)
@@ -536,14 +544,7 @@ class CameraLauncher : CordovaPlugin() {
         editManager?.editImage(cordova.activity, imageBase64, editLauncher)
     }
 
-    fun callEditUriImage(args: JSONArray) {
-        editParameters = IONEditParameters(
-            args.getJSONObject(0).getString(URI),
-            true,
-            args.getJSONObject(0).getBoolean(SAVE_TO_GALLERY),
-            args.getJSONObject(0).getBoolean(INCLUDE_METADATA)
-        )
-
+    fun callEditUriImage(editParameters: IONEditParameters) {
         // we don't want to ask for these permissions from Android 11 onwards
         val galleryPermissionNeeded = Build.VERSION.SDK_INT < 30 &&
                 (!PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) ||
