@@ -210,7 +210,15 @@ class CameraLauncher : CordovaPlugin() {
             "takePicture" -> handlePhoto(args, isLegacy = true)
             "takePhoto" -> handlePhoto(args, isLegacy = false)
             "editPicture" -> callEditImage(args)
-            "editURIPicture" -> callEditUriImage(args)
+            "editURIPicture" -> {
+                editParameters = IONEditParameters(
+                    args.getJSONObject(0).getString(URI),
+                    true,
+                    args.getJSONObject(0).getBoolean(SAVE_TO_GALLERY),
+                    args.getJSONObject(0).getBoolean(INCLUDE_METADATA)
+                )
+                callEditUriImage(editParameters)
+            }
             "recordVideo" -> {
                 saveVideoToGallery = args.getJSONObject(0).getBoolean(SAVE_TO_GALLERY)
                 includeMetadata = args.getJSONObject(0).getBoolean(INCLUDE_METADATA)
@@ -683,49 +691,42 @@ class CameraLauncher : CordovaPlugin() {
 
     fun callEditImage(args: JSONArray) {
         editParameters = IONEditParameters(
-             "",
-             fromUri = false,
-             saveToGallery = false,
-             includeMetadata = false
+            "",
+            fromUri = false,
+            saveToGallery = false,
+            includeMetadata = false
         )
         val imageBase64 = args.getString(0)
         editManager?.editImage(cordova.activity, imageBase64, editLauncher)
-     }
+    }
 
-     fun callEditUriImage(args: JSONArray) {
-         editParameters = IONEditParameters(
-             args.getJSONObject(0).getString(URI),
-             true,
-             args.getJSONObject(0).getBoolean(SAVE_TO_GALLERY),
-             args.getJSONObject(0).getBoolean(INCLUDE_METADATA)
-         )
+    fun callEditUriImage(editParameters: IONEditParameters) {
+        // we don't want to ask for these permissions from Android 11 onwards
+        val galleryPermissionNeeded = Build.VERSION.SDK_INT < 30 &&
+                (!PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) ||
+                        (editParameters.saveToGallery && !PermissionHelper.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)))
 
-         // we don't want to ask for these permissions from Android 11 onwards
-         val galleryPermissionNeeded = Build.VERSION.SDK_INT < 30 &&
-                 (!PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) ||
-                         (editParameters.saveToGallery && !PermissionHelper.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)))
+        if (galleryPermissionNeeded) {
+            var permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            if (editParameters.saveToGallery) {
+                permissions += Manifest.permission.WRITE_EXTERNAL_STORAGE
+            }
+            PermissionHelper.requestPermissions(
+                this,
+                EDIT_PICTURE_SEC,
+                permissions
+            )
+            return
+        }
 
-         if (galleryPermissionNeeded) {
-             var permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-             if (editParameters.saveToGallery) {
-                 permissions += Manifest.permission.WRITE_EXTERNAL_STORAGE
-             }
-             PermissionHelper.requestPermissions(
-                 this,
-                 EDIT_PICTURE_SEC,
-                 permissions
-             )
-             return
-         }
-
-         if (editParameters.editURI.isNullOrEmpty()) {
-             sendError(IONError.EDIT_PICTURE_EMPTY_URI_ERROR)
-             return
-         }
-         editManager?.editURIPicture(cordova.activity, editParameters.editURI!!, editLauncher) {
-             sendError(it)
-         }
-     }
+        if (editParameters.editURI.isNullOrEmpty()) {
+            sendError(IONError.EDIT_PICTURE_EMPTY_URI_ERROR)
+            return
+        }
+        editManager?.editURIPicture(cordova.activity, editParameters.editURI!!, editLauncher) {
+            sendError(it)
+        }
+    }
 
     fun callCaptureVideo(saveVideoToGallery: Boolean) {
 
