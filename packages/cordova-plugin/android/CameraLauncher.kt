@@ -40,10 +40,10 @@ import io.ionic.libs.ioncameralib.manager.CameraManager
 import io.ionic.libs.ioncameralib.manager.VideoManager
 import io.ionic.libs.ioncameralib.manager.GalleryManager
 import io.ionic.libs.ioncameralib.manager.EditManager
-import io.ionic.libs.ioncameralib.helper.OSCAMRExifHelper
-import io.ionic.libs.ioncameralib.helper.OSCAMRFileHelper
-import io.ionic.libs.ioncameralib.helper.OSCAMRImageHelper
-import io.ionic.libs.ioncameralib.helper.OSCAMRMediaHelper
+import io.ionic.libs.ioncameralib.helper.IONExifHelper
+import io.ionic.libs.ioncameralib.helper.IONFileHelper
+import io.ionic.libs.ioncameralib.helper.IONImageHelper
+import io.ionic.libs.ioncameralib.helper.IONMediaHelper
 import io.ionic.libs.ioncameralib.model.IONEditParameters
 import io.ionic.libs.ioncameralib.model.IONError
 import io.ionic.libs.ioncameralib.model.IONMediaType
@@ -142,40 +142,40 @@ class CameraLauncher : CordovaPlugin() {
 
         camController = OSCAMRController(
             applicationId,
-            OSCAMRExifHelper(),
-            OSCAMRFileHelper(),
-            OSCAMRMediaHelper(),
-            OSCAMRImageHelper()
+            IONExifHelper(),
+            IONFileHelper(),
+            IONMediaHelper(),
+            IONImageHelper()
         )
 
         cameraManager = CameraManager(
             applicationId,
             ".camera.provider",
-            OSCAMRExifHelper(),
-            OSCAMRFileHelper(),
-            OSCAMRMediaHelper(),
-            OSCAMRImageHelper()
+            IONExifHelper(),
+            IONFileHelper(),
+            IONMediaHelper(),
+            IONImageHelper()
         )
 
         videoManager = VideoManager(
             ".camera.provider",
-            OSCAMRFileHelper(),
+            IONFileHelper(),
         )
 
         galleryManager = GalleryManager(
-            OSCAMRExifHelper(),
-            OSCAMRFileHelper(),
-            OSCAMRMediaHelper(),
-            OSCAMRImageHelper()
+            IONExifHelper(),
+            IONFileHelper(),
+            IONMediaHelper(),
+            IONImageHelper()
         )
 
         editManager = EditManager(
             applicationId,
             ".camera.provider",
-            OSCAMRExifHelper(),
-            OSCAMRFileHelper(),
-            OSCAMRMediaHelper(),
-            OSCAMRImageHelper()
+            IONExifHelper(),
+            IONFileHelper(),
+            IONMediaHelper(),
+            IONImageHelper()
         )
 
         cameraManager?.deleteVideoFilesFromCache(cordova.activity)
