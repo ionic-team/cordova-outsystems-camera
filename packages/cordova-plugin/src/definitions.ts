@@ -86,7 +86,7 @@ export interface TakePhotoOptions {
      * Whether to allow the user to crop or make small edits (platform specific).
      * @since 1.0.0
      */
-    allowEditing?: boolean;
+    allowEdit?: boolean;
 
     /**
      * The encoding type of the returned image file. Default is 'jpeg'.

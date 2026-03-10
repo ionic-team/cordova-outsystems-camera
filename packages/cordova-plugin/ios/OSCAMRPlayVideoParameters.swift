@@ -2,18 +2,18 @@ import Foundation
 import IONCameraLib
 
 struct OSCAMRPlayVideoParameters {
-    let url: URL
+     let url: URL
 }
 
 extension OSCAMRPlayVideoParameters: Decodable {
     enum DecodeError: Error {
         case invalidURL
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case url = "videoURI"
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let urlString = try container.decode(String.self, forKey: .url)

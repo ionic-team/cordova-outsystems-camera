@@ -4,12 +4,14 @@ import IONCameraLib
 class OSCameraPlugin: CDVPlugin {
     var cameraManager: IONCAMRCameraActionDelegate?
     var galleryManager: IONCAMRGalleryActionDelegate?
+    var editManager: IONCAMREditActionDelegate?
     var videoManager: IONCAMRVideoActionDelegate?
     var callbackId: String = ""
     
     override func pluginInitialize() {
         self.cameraManager = IONCAMRFactory.createCameraManagerWrapper(withDelegate: self, and: self.viewController)
         self.galleryManager = IONCAMRFactory.createGalleryManagerWrapper(withDelegate: self, and: self.viewController)
+        self.editManager = IONCAMRFactory.createEditManagerWrapper(withDelegate: self, and: self.viewController)
         self.videoManager = IONCAMRFactory.createVideoManagerWrapper(withDelegate: self, and: self.viewController)
     }
     
@@ -21,25 +23,31 @@ class OSCameraPlugin: CDVPlugin {
     }
     
     @objc(takePicture:)
+    @available(*, deprecated, message: "Use takePhoto(command:) instead. This method will be removed in future versions.")
     func takePicture(command: CDVInvokedUrlCommand) {
+        takePhoto(command: command)
+    }
+
+    @objc(takePhoto:)
+    func takePhoto(command: CDVInvokedUrlCommand) {
         self.callbackId = command.callbackId
 
         guard let parametersDictionary = command.argument(at: 0) as? [String: Any],
               let parametersData = try? JSONSerialization.data(withJSONObject: parametersDictionary),
-              let parameters = try? JSONDecoder().decode(OSCAMRTakePictureParameters.self, from: parametersData)
+              let parameters = try? JSONDecoder().decode(OSCAMRTakePhotoParameters.self, from: parametersData)
         else { return self.callback(error: .takePictureArguments) }
 
         // This 🔨 is required in order not to break Android's implementation
         if parameters.sourceType == 0 {
-            return self.chooseSinglePicture(allowEdit: parameters.allowEdit) 
+            return self.chooseSinglePicture(allowEdit: parameters.allowEdit)
         }
     
-        guard let options = try? IONCAMRPictureOptions(from: parameters)
+        guard let options = try? IONCAMRTakePhotoOptions(from: parameters)
         else { return self.callback(error: .takePictureArguments) }
 
         self.commandDelegate.run { [weak self] in
             guard let self = self else { return }
-            self.cameraManager?.captureMedia(with: options)
+            self.cameraManager?.takePhoto(with: options)
         }
     }
 
@@ -54,7 +62,7 @@ class OSCameraPlugin: CDVPlugin {
         
         self.commandDelegate.run { [weak self] in
             guard let self = self else { return }
-            self.galleryManager?.editPicture(image)
+            self.editManager?.editPicture(image)
         }
     }
 
@@ -70,7 +78,7 @@ class OSCameraPlugin: CDVPlugin {
         
         self.commandDelegate.run { [weak self] in
             guard let self = self else { return }
-            self.galleryManager?.editPicture(from: parameters.uri, with: options)
+            self.editManager?.editPicture(from: parameters.uri, with: options)
         }
     }
     
@@ -82,11 +90,11 @@ class OSCameraPlugin: CDVPlugin {
               let parametersData = try? JSONSerialization.data(withJSONObject: parametersDictionary),
               let parameters = try? JSONDecoder().decode(OSCAMRRecordVideoParameters.self, from: parametersData)
         else { return self.callback(error: .captureVideoIssue) }
-        let options = IONCAMRVideoOptions(from: parameters)
+        let options = IONCAMRRecordVideoOptions(from: parameters)
         
         self.commandDelegate.run { [weak self] in
             guard let self = self else { return }
-            self.cameraManager?.captureMedia(with: options)
+            self.cameraManager?.recordVideo(with: options)
         }
     }
     

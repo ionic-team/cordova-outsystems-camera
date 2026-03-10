@@ -5,8 +5,8 @@ struct OSCAMRRecordVideoParameters: Decodable {
     let includeMetadata: Bool
 }
 
-extension IONCAMRVideoOptions {
+extension IONCAMRRecordVideoOptions {
     convenience init(from parameters: OSCAMRRecordVideoParameters) {
-        self.init(saveToPhotoAlbum: parameters.saveToGallery, returnMetadata: parameters.includeMetadata)
+        self.init(saveToGallery: parameters.saveToGallery, returnMetadata: parameters.includeMetadata)
     }
 }

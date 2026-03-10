@@ -8,6 +8,6 @@ struct OSCAMREditPictureParameters: Decodable {
 
 extension IONCAMREditOptions {
     convenience init(from parameters: OSCAMREditPictureParameters) {
-        self.init(saveToPhotoAlbum: parameters.saveToGallery, returnMetadata: parameters.includeMetadata)
+        self.init(saveToGallery: parameters.saveToGallery, returnMetadata: parameters.includeMetadata)
     }
 }
