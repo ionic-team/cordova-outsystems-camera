@@ -113,6 +113,8 @@ class CameraLauncher : CordovaPlugin() {
     private var galleryMediaType: IONMediaType = IONMediaType.ALL
     private var galleryAllowMultipleSelection: Boolean = false
     private var galleryAllowEdit: Boolean = false
+    private var galleryAllowEditInApp: Boolean = true
+    private var galleryLimit: Int = 0
     private var galleryIncludeMetadata: Boolean = false
     private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
     private lateinit var cameraCropLauncher: ActivityResultLauncher<Intent>
@@ -790,10 +792,12 @@ class CameraLauncher : CordovaPlugin() {
 
         try {
             val parameters = args.getJSONObject(0)
-            galleryMediaType = IONMediaType.PICTURE//IONMediaType.fromValue(parameters.getInt(MEDIA_TYPE))
+            galleryMediaType = IONMediaType.fromValue(parameters.getInt(MEDIA_TYPE))
             galleryAllowMultipleSelection = parameters.getBoolean(ALLOW_MULTIPLE)
             galleryIncludeMetadata = parameters.getBoolean(INCLUDE_METADATA)
-            galleryAllowEdit = true//parameters.getBoolean(ALLOW_EDIT)
+            galleryAllowEdit = parameters.getBoolean(ALLOW_EDIT)
+            galleryAllowEditInApp = parameters.optBoolean(EDIT_IN_APP, true)
+            galleryLimit = parameters.optInt(GALLERY_LIMIT, 0)
         } catch (_: Exception) {
             sendError(IONError.GENERIC_CHOOSE_MULTIMEDIA_ERROR)
             return
@@ -822,6 +826,7 @@ class CameraLauncher : CordovaPlugin() {
             this.cordova.activity,
             galleryMediaType,
             galleryAllowMultipleSelection,
+            galleryLimit,
             galleryLauncher
         )
     }
@@ -1190,6 +1195,8 @@ class CameraLauncher : CordovaPlugin() {
         private const val INCLUDE_METADATA = "includeMetadata"
         private const val LATEST_VERSION = "latestVersion"
         private const val ALLOW_MULTIPLE = "allowMultipleSelection"
+        private const val GALLERY_LIMIT = "limit"
+        private const val EDIT_IN_APP = "editInApp"
         private const val MEDIA_TYPE = "mediaType"
         private const val URI = "uri"
 
