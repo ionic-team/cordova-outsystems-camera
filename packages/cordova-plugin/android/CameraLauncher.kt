@@ -35,21 +35,19 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import com.google.gson.GsonBuilder
-import io.ionic.libs.ioncameralib.manager.OSCAMRController
 import io.ionic.libs.ioncameralib.manager.CameraManager
 import io.ionic.libs.ioncameralib.manager.VideoManager
 import io.ionic.libs.ioncameralib.manager.GalleryManager
 import io.ionic.libs.ioncameralib.manager.EditManager
-import io.ionic.libs.ioncameralib.helper.OSCAMRExifHelper
-import io.ionic.libs.ioncameralib.helper.OSCAMRFileHelper
-import io.ionic.libs.ioncameralib.helper.OSCAMRImageHelper
-import io.ionic.libs.ioncameralib.helper.OSCAMRMediaHelper
+import io.ionic.libs.ioncameralib.helper.IONExifHelper
+import io.ionic.libs.ioncameralib.helper.IONFileHelper
+import io.ionic.libs.ioncameralib.helper.IONImageHelper
+import io.ionic.libs.ioncameralib.helper.IONMediaHelper
 import io.ionic.libs.ioncameralib.model.IONEditParameters
 import io.ionic.libs.ioncameralib.model.IONError
 import io.ionic.libs.ioncameralib.model.IONMediaType
 import io.ionic.libs.ioncameralib.model.IONCameraParameters
 import io.ionic.libs.ioncameralib.model.IONMediaResult
-import io.ionic.libs.ioncameralib.processor.IONMediaProcessor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -104,30 +102,20 @@ class CameraLauncher : CordovaPlugin() {
     )
     var callbackContext: CallbackContext? = null
     private var numPics = 0
-    private var conn // Used to update gallery app with newly-written files
-            : MediaScannerConnection? = null
-    private var scanMe // Uri of image to be added to content store
-            : Uri? = null
     private var croppedUri: Uri? = null
     private var croppedFilePath: String? = null
-
     private lateinit var applicationId: String
-    private var pendingDeleteMediaUri: Uri? = null
-    private var camController: OSCAMRController? = null
     private var cameraManager: CameraManager? = null
     private var videoManager: VideoManager? = null
     private var galleryManager: GalleryManager? = null
-
-
     private var editManager: EditManager? = null
-
     private var camParameters: IONCameraParameters? = null
-
     private var galleryMediaType: IONMediaType = IONMediaType.ALL
     private var galleryAllowMultipleSelection: Boolean = false
     private var galleryAllowEdit: Boolean = false
+    private var galleryAllowEditInApp: Boolean = true
+    private var galleryLimit: Int = 0
     private var galleryIncludeMetadata: Boolean = false
-
     private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
     private lateinit var cameraCropLauncher: ActivityResultLauncher<Intent>
     private lateinit var galleryCropLauncher: ActivityResultLauncher<Intent>
@@ -139,41 +127,35 @@ class CameraLauncher : CordovaPlugin() {
         super.pluginInitialize()
         setupLaunchers()
         applicationId = cordova.activity.packageName
-        
-        camController = OSCAMRController(
-            applicationId,
-            OSCAMRExifHelper(),
-            OSCAMRFileHelper(),
-            OSCAMRMediaHelper(),
-            OSCAMRImageHelper()
-        )
 
         cameraManager = CameraManager(
             applicationId,
             ".camera.provider",
-            OSCAMRExifHelper(),
-            OSCAMRFileHelper(),
-            OSCAMRMediaHelper(),
-            OSCAMRImageHelper()
+            IONExifHelper(),
+            IONFileHelper(),
+            IONMediaHelper(),
+            IONImageHelper()
         )
 
         videoManager = VideoManager(
             ".camera.provider",
-            OSCAMRFileHelper(),
+            IONFileHelper(),
         )
 
         galleryManager = GalleryManager(
-            OSCAMRExifHelper(),
-            OSCAMRFileHelper(),
-            OSCAMRMediaHelper(),
-            OSCAMRImageHelper()
+            IONExifHelper(),
+            IONFileHelper(),
+            IONMediaHelper(),
+            IONImageHelper()
         )
 
         editManager = EditManager(
             applicationId,
             ".camera.provider",
-            OSCAMRFileHelper(),
-            OSCAMRImageHelper()
+            IONExifHelper(),
+            IONFileHelper(),
+            IONMediaHelper(),
+            IONImageHelper()
         )
 
         cameraManager?.deleteVideoFilesFromCache(cordova.activity)
@@ -219,19 +201,21 @@ class CameraLauncher : CordovaPlugin() {
                 )
                 callEditUriImage(editParameters)
             }
+
             "recordVideo" -> {
                 saveVideoToGallery = args.getJSONObject(0).getBoolean(SAVE_TO_GALLERY)
                 includeMetadata = args.getJSONObject(0).getBoolean(INCLUDE_METADATA)
                 callCaptureVideo(saveVideoToGallery)
             }
+
             "chooseFromGallery" -> callChooseFromGalleryWithPermissions(args)
             "playVideo" -> callPlayVideo(args)
             else -> return false
         }
         return true
-  }// Create the cache directory if it doesn't exist
+    }// Create the cache directory if it doesn't exist
 
-     private fun handlePhoto(args: JSONArray, isLegacy: Boolean): Boolean {
+    private fun handlePhoto(args: JSONArray, isLegacy: Boolean): Boolean {
         val parameters = args.getJSONObject(0)
         //Take the values from the arguments if they're not already defined (this is tricky)
         mQuality = parameters.getInt(QUALITY)
@@ -339,7 +323,7 @@ class CameraLauncher : CordovaPlugin() {
         }
     }
 
-   private fun setupGalleryLauncher() {
+    private fun setupGalleryLauncher() {
         galleryLauncher = cordova.activity.registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
@@ -351,7 +335,7 @@ class CameraLauncher : CordovaPlugin() {
         galleryCropLauncher = cordova.activity.registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
-           handleGalleryCropResult(result)
+            handleGalleryCropResult(result)
         }
     }
 
@@ -361,10 +345,14 @@ class CameraLauncher : CordovaPlugin() {
                 if (allowEdit) {
                     editPhoto()
                 } else {
-                    processResult()
+                    processResult(result)
                 }
             }
-            Activity.RESULT_CANCELED -> { sendError(IONError.NO_PICTURE_TAKEN_ERROR) }
+
+            Activity.RESULT_CANCELED -> {
+                sendError(IONError.NO_PICTURE_TAKEN_ERROR)
+            }
+
             else -> {
                 sendError(IONError.TAKE_PHOTO_ERROR)
             }
@@ -373,7 +361,7 @@ class CameraLauncher : CordovaPlugin() {
 
     private fun handleCameraCropResult(result: ActivityResult) {
         when (result.resultCode) {
-            Activity.RESULT_OK -> processResult()
+            Activity.RESULT_OK -> processResult(result)
             Activity.RESULT_CANCELED -> sendError(IONError.EDIT_OPERATION_CANCELLED_ERROR)
             else -> sendError(IONError.EDIT_IMAGE_ERROR)
         }
@@ -389,8 +377,14 @@ class CameraLauncher : CordovaPlugin() {
 
     private fun handleVideoResult(result: ActivityResult) {
         when (result.resultCode) {
-            Activity.RESULT_OK -> { processResultFromVideo(result) }
-            Activity.RESULT_CANCELED -> { sendError(IONError.CAPTURE_VIDEO_CANCELLED_ERROR) }
+            Activity.RESULT_OK -> {
+                processResultFromVideo(result)
+            }
+
+            Activity.RESULT_CANCELED -> {
+                sendError(IONError.CAPTURE_VIDEO_CANCELLED_ERROR)
+            }
+
             else -> sendError(IONError.CAPTURE_VIDEO_ERROR)
         }
     }
@@ -398,6 +392,11 @@ class CameraLauncher : CordovaPlugin() {
     private fun handleGalleryResult(result: ActivityResult) {
         when (result.resultCode) {
             Activity.RESULT_OK -> {
+
+                val editor = editManager ?: run {
+                    sendError(IONError.CONTEXT_ERROR)
+                    return
+                }
 
                 val manager = galleryManager ?: run {
                     sendError(IONError.CONTEXT_ERROR)
@@ -412,7 +411,7 @@ class CameraLauncher : CordovaPlugin() {
                 }
 
                 if (galleryAllowEdit && uris.size == 1 && galleryMediaType == IONMediaType.PICTURE) {
-                    manager.openCropActivity(
+                    editor.openCropActivity(
                         cordova.activity,
                         uris.first(),
                         galleryCropLauncher
@@ -421,7 +420,11 @@ class CameraLauncher : CordovaPlugin() {
                     processResultFromGallery(result)
                 }
             }
-            Activity.RESULT_CANCELED -> { sendError(IONError.CHOOSE_MULTIMEDIA_CANCELLED_ERROR) }
+
+            Activity.RESULT_CANCELED -> {
+                sendError(IONError.CHOOSE_MULTIMEDIA_CANCELLED_ERROR)
+            }
+
             else -> sendError(IONError.GENERIC_CHOOSE_MULTIMEDIA_ERROR)
         }
     }
@@ -446,24 +449,27 @@ class CameraLauncher : CordovaPlugin() {
     }
 
     private fun editPhoto() {
-        val manager = cameraManager ?: run {
+        val editor = editManager ?: run {
             sendError(IONError.CONTEXT_ERROR)
             return
         }
 
         val tmpFile = FileProvider.getUriForFile(
-            cordova.activity, "$applicationId.camera.provider", manager.createCaptureFile(
+            cordova.activity, "$applicationId.camera.provider", editor.createCaptureFile(
                 cordova.activity, encodingType, cordova.activity.getSharedPreferences(
                     STORE, Context.MODE_PRIVATE
                 ).getString(EDIT_FILE_NAME_KEY, "") ?: ""
             )
         )
-        manager.openCropActivity(
-            cordova.activity, tmpFile, cameraCropLauncher
+
+        editor.openCropActivity(
+            cordova.activity,
+            tmpFile,
+            cameraCropLauncher
         )
     }
 
-    private fun processResult() {
+    private fun processResult(result: ActivityResult) {
         try {
             val manager = cameraManager ?: run {
                 sendError(IONError.CONTEXT_ERROR)
@@ -471,7 +477,12 @@ class CameraLauncher : CordovaPlugin() {
             }
 
             camParameters?.let { params ->
-                manager.processResultFromCamera(cordova.activity, params, {
+                manager.processResultFromCamera(
+                    cordova.activity, try {
+                    result.data
+                } catch (e: Exception) {
+                    TODO("Not yet implemented")
+                }, params, {
                     handleBase64(it)
                 }, { mediaResult ->
                     handleMediaResult(mediaResult)
@@ -545,6 +556,7 @@ class CameraLauncher : CordovaPlugin() {
                 })
         }
     }
+
     private fun processResultFromGallery(result: ActivityResult) {
 
         val manager = galleryManager ?: run {
@@ -588,7 +600,7 @@ class CameraLauncher : CordovaPlugin() {
      * @param returnType        Set the type of image to return.
      * @param encodingType           Compression quality hint (0-100: 0=low quality & high compression, 100=compress of max quality)
      */
-   fun callTakePhoto(encodingType: Int) {
+    fun callTakePhoto(encodingType: Int) {
         // we don't want to ask for these permissions from Android 11 onwards
         val saveAlbumPermission =
             Build.VERSION.SDK_INT >= 30 || !saveToPhotoAlbum || (PermissionHelper.hasPermission(
@@ -604,20 +616,20 @@ class CameraLauncher : CordovaPlugin() {
         if (takePhotoPermission && saveAlbumPermission) { // no permissions need to be requested
             cameraManager?.takePhoto(cordova.activity, encodingType, cameraLauncher)
         } else if (saveAlbumPermission) { // we need to request camera permissions
-            PermissionHelper.requestPermission(this, TAKE_PIC_SEC, Manifest.permission.CAMERA)
+            PermissionHelper.requestPermission(this, TAKE_PHO_SEC, Manifest.permission.CAMERA)
         } else if (takePhotoPermission) { // we need to request storage permissions
             PermissionHelper.requestPermissions(
-                this, TAKE_PIC_SEC, arrayOf(
+                this, TAKE_PHO_SEC, arrayOf(
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
                 )
             )
         } else { // we need to request both permissions
-            PermissionHelper.requestPermissions(this, TAKE_PIC_SEC, permissions)
+            PermissionHelper.requestPermissions(this, TAKE_PHO_SEC, permissions)
         }
     }
 
-        /**
+    /**
      * Take a picture with the camera.
      * When an image is captured or the camera view is cancelled, the result is returned
      * in CordovaActivity.onActivityResult, which forwards the result to this.onActivityResult.
@@ -636,14 +648,18 @@ class CameraLauncher : CordovaPlugin() {
         // we don't want to ask for these permissions from Android 11 onwards
         val saveAlbumPermission = Build.VERSION.SDK_INT >= 30 || !saveToPhotoAlbum ||
                 (PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) &&
-                        PermissionHelper.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+                        PermissionHelper.hasPermission(
+                            this,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        ))
 
-        val takePicturePermission = PermissionHelper.hasPermission(this, Manifest.permission.CAMERA) ||
-                !hasCameraPermissionDeclared()
+        val takePicturePermission =
+            PermissionHelper.hasPermission(this, Manifest.permission.CAMERA) ||
+                    !hasCameraPermissionDeclared()
 
         if (takePicturePermission && saveAlbumPermission) { // no permissions need to be requested
             cordova.setActivityResultCallback(this)
-            camController?.takePicture(cordova.activity, returnType, encodingType)
+            cameraManager?.takePicture(cordova.activity, returnType, encodingType)
         } else if (saveAlbumPermission) { // we need to request camera permissions
             PermissionHelper.requestPermission(this, TAKE_PIC_SEC, Manifest.permission.CAMERA)
         } else if (takePicturePermission) { // we need to request storage permissions
@@ -669,24 +685,24 @@ class CameraLauncher : CordovaPlugin() {
      */
     fun callGetImage(srcType: Int, returnType: Int, encodingType: Int) {
         // we don't want to ask for this permission from Android 11 onwards
-         if (Build.VERSION.SDK_INT < 30 && !PermissionHelper.hasPermission(
-                 this,
-                 Manifest.permission.READ_EXTERNAL_STORAGE
-             )
-         ) {
-             PermissionHelper.requestPermission(
-                 this,
-                 SAVE_TO_ALBUM_SEC,
-                 Manifest.permission.READ_EXTERNAL_STORAGE
-             )
-         }
-         // we don't want to ask for this permission from Android 13 onwards
-         else {
-             camParameters?.let {
-                 cordova.setActivityResultCallback(this)
-                 camController?.getImage(this.cordova.activity, srcType, returnType, it)
-             }
-         }
+        if (Build.VERSION.SDK_INT < 30 && !PermissionHelper.hasPermission(
+                this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        ) {
+            PermissionHelper.requestPermission(
+                this,
+                SAVE_TO_ALBUM_SEC,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        }
+        // we don't want to ask for this permission from Android 13 onwards
+        else {
+            camParameters?.let {
+                cordova.setActivityResultCallback(this)
+                galleryManager?.getImage(this.cordova.activity, srcType, returnType, it)
+            }
+        }
     }
 
     fun callEditImage(args: JSONArray) {
@@ -704,7 +720,10 @@ class CameraLauncher : CordovaPlugin() {
         // we don't want to ask for these permissions from Android 11 onwards
         val galleryPermissionNeeded = Build.VERSION.SDK_INT < 30 &&
                 (!PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) ||
-                        (editParameters.saveToGallery && !PermissionHelper.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)))
+                        (editParameters.saveToGallery && !PermissionHelper.hasPermission(
+                            this,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        )))
 
         if (galleryPermissionNeeded) {
             var permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -765,7 +784,7 @@ class CameraLauncher : CordovaPlugin() {
         }
     }
 
-     /**
+    /**
      * Calls the "Choose from gallery" method and the relevant permissions to access the gallery.
      * @param args A Json array containing the parameters for "Choose from gallery".
      */
@@ -777,23 +796,24 @@ class CameraLauncher : CordovaPlugin() {
             galleryAllowMultipleSelection = parameters.getBoolean(ALLOW_MULTIPLE)
             galleryIncludeMetadata = parameters.getBoolean(INCLUDE_METADATA)
             galleryAllowEdit = parameters.getBoolean(ALLOW_EDIT)
-        }
-        catch(_: Exception) {
+            galleryAllowEditInApp = parameters.optBoolean(EDIT_IN_APP, true)
+            galleryLimit = parameters.optInt(GALLERY_LIMIT, 0)
+        } catch (_: Exception) {
             sendError(IONError.GENERIC_CHOOSE_MULTIMEDIA_ERROR)
             return
         }
 
         // we don't want to ask for this permission from Android 11 onwards
         if (Build.VERSION.SDK_INT < 30
-            && !PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            && !PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+        ) {
 
             PermissionHelper.requestPermission(
                 this,
                 CHOOSE_FROM_GALLERY_PERMISSION_CODE,
                 Manifest.permission.READ_EXTERNAL_STORAGE
             )
-        }
-        else {
+        } else {
             callChooseFromGallery()
         }
     }
@@ -806,6 +826,7 @@ class CameraLauncher : CordovaPlugin() {
             this.cordova.activity,
             galleryMediaType,
             galleryAllowMultipleSelection,
+            galleryLimit,
             galleryLauncher
         )
     }
@@ -827,7 +848,8 @@ class CameraLauncher : CordovaPlugin() {
             return
         }
     }
-   /**
+
+    /**
      * Called when the camera view exits.
      *
      * @param requestCode The request code originally supplied to startActivityForResult(),
@@ -835,16 +857,18 @@ class CameraLauncher : CordovaPlugin() {
      * @param resultCode  The integer result code returned by the child activity through its setResult().
      * @param intent      An Intent, which can return result data to the caller (various data can be attached to Intent "extras").
      */
-     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         val srcType = requestCode / 16 - 1
         var destType = requestCode % 16 - 1
         if (requestCode == CROP_GALERY) {
             if (resultCode == Activity.RESULT_OK) {
                 editParameters.fromUri = false
-                camController?.processResultFromEdit(cordova.activity, intent, editParameters,
+                galleryManager?.processResultFromEdit(
+                    cordova.activity, intent, editParameters,
                     {
                         callbackContext?.success(it)
                     },
+                    "$applicationId.camera.provider",
                     {
                         // do nothing, because this callback shouldn't be called in this case
                     },
@@ -864,7 +888,7 @@ class CameraLauncher : CordovaPlugin() {
                 destType = requestCode - CROP_CAMERA
                 try {
                     camParameters?.let { it ->
-                        camController?.processResultFromCamera(
+                        cameraManager?.processResultFromCamera(
                             cordova.activity,
                             intent,
                             it,
@@ -897,11 +921,11 @@ class CameraLauncher : CordovaPlugin() {
             // If image available
             if (resultCode == Activity.RESULT_OK) {
                 try {
-                    if (allowEdit && camController != null) {
+                    if (allowEdit && cameraManager != null) {
                         val tmpFile = FileProvider.getUriForFile(
                             cordova.activity,
                             "$applicationId.camera.provider",
-                            camController!!.createCaptureFile(
+                            cameraManager!!.createCaptureFile(
                                 cordova.activity,
                                 encodingType,
                                 cordova.activity.getSharedPreferences(
@@ -911,7 +935,7 @@ class CameraLauncher : CordovaPlugin() {
                             )
                         )
                         cordova.setActivityResultCallback(this)
-                        camController?.openCropActivity(
+                        cameraManager?.openCropActivity(
                             cordova.activity,
                             tmpFile,
                             CROP_CAMERA,
@@ -919,7 +943,7 @@ class CameraLauncher : CordovaPlugin() {
                         )
                     } else {
                         camParameters?.let { params ->
-                            camController?.processResultFromCamera(
+                            cameraManager?.processResultFromCamera(
                                 cordova.activity,
                                 intent,
                                 params,
@@ -930,7 +954,8 @@ class CameraLauncher : CordovaPlugin() {
                                 { mediaResult ->
                                     val gson = GsonBuilder().create()
                                     val resultJson = gson.toJson(mediaResult)
-                                    val pluginResult = PluginResult(PluginResult.Status.OK, resultJson)
+                                    val pluginResult =
+                                        PluginResult(PluginResult.Status.OK, resultJson)
                                     callbackContext?.sendPluginResult(pluginResult)
                                 },
                                 {
@@ -955,11 +980,11 @@ class CameraLauncher : CordovaPlugin() {
                 if (allowEdit) {
                     cordova.setActivityResultCallback(this)
                     val uri = intent.data
-                    camController?.openCropActivity(cordova.activity, uri, CROP_GALERY, destType)
+                    galleryManager?.openCropActivity(cordova.activity, uri, CROP_GALERY, destType)
                 } else {
                     cordova.threadPool.execute {
                         camParameters?.let { params ->
-                            camController?.processResultFromGallery(
+                            galleryManager?.processResultFromGallery(
                                 this.cordova.activity,
                                 intent,
                                 params,
@@ -982,7 +1007,6 @@ class CameraLauncher : CordovaPlugin() {
             }
         }
     }
-
 
 
     /**
@@ -1009,8 +1033,13 @@ class CameraLauncher : CordovaPlugin() {
             }
         }
         when (requestCode) {
-            TAKE_PIC_SEC -> {
+            TAKE_PHO_SEC -> {
                 cameraManager?.takePhoto(this.cordova.activity, encodingType, cameraLauncher)
+            }
+
+            TAKE_PIC_SEC -> {
+                cordova.setActivityResultCallback(this)
+                cameraManager?.takePicture(cordova.activity, destType, encodingType)
             }
 
             SAVE_TO_ALBUM_SEC -> callGetImage(srcType, destType, encodingType)
@@ -1143,6 +1172,8 @@ class CameraLauncher : CordovaPlugin() {
         private const val IMAGE_URI_KEY = "imageUri"
         private const val IMAGE_FILE_PATH_KEY = "imageFilePath"
         private const val TAKE_PIC_SEC = 0
+
+        private const val TAKE_PHO_SEC = 4
         private const val SAVE_TO_ALBUM_SEC = 1
         private const val CAPTURE_VIDEO_SEC = 2
         private const val EDIT_PICTURE_SEC = 3
@@ -1164,6 +1195,8 @@ class CameraLauncher : CordovaPlugin() {
         private const val INCLUDE_METADATA = "includeMetadata"
         private const val LATEST_VERSION = "latestVersion"
         private const val ALLOW_MULTIPLE = "allowMultipleSelection"
+        private const val GALLERY_LIMIT = "limit"
+        private const val EDIT_IN_APP = "editInApp"
         private const val MEDIA_TYPE = "mediaType"
         private const val URI = "uri"
 
