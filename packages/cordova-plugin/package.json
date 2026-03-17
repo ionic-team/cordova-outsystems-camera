@@ -28,16 +28,13 @@
   },
   "author": "OutSystems",
   "license": "MIT",
-  "dependencies": {
-    "@capacitor/synapse": "^1.0.2"
-  },
   "eslintConfig": {
     "extends": "@ionic/eslint-config/recommended"
   },
   "prettier": "@ionic/prettier-config",
   "docs": "typedoc",
   "devDependencies": {
-    "@capacitor/docgen": "^0.2.2",
+    "@capacitor/docgen": "^0.3.1",
     "@rollup/plugin-typescript": "^11.1.6",
     "@types/cordova": "^11.0.3",
     "@types/node": "^20.17.14",
