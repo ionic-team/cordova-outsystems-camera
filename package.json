@@ -4,12 +4,11 @@
   "private": true,
   "dependencies": {},
   "scripts": {
-    "i": "cd ./packages/cordova-plugin && npm i && cd ../outsystems-wrapper && npm i",
+    "i": "npm i && cd ./packages/cordova-plugin && npm i && cd ../outsystems-wrapper && npm i",
     "build": "cd ./packages/cordova-plugin && npm run build && cd ../outsystems-wrapper && npm run build"
   },
   "devDependencies": {
     "@types/node": "^20.14.8",
-    "lerna": "^8.1.8",
     "typescript": "~5.4.5"
   }
 }
