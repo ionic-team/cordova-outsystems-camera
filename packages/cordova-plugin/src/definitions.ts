@@ -187,6 +187,12 @@ export interface RecordVideoOptions {
      * @since 1.0.0
      */
     includeMetadata?: boolean;
+    /**
+     * Whether to save the recorded the video persistently (even if not saved in the gallery). Default is true.
+     * @default true
+     * @since 1.0.0
+     */
+    isPersistent?: boolean;
 }
 
 export interface PlayVideoOptions {
