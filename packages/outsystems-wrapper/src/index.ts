@@ -79,9 +79,6 @@ class OSCameraPlugin {
     }
   }
 
-  /**
-   * Records a video using the device's camera.
-   */
   recordVideo(
     success: (result: MediaResult) => void,
     error: (err: PluginError) => void,
@@ -99,9 +96,6 @@ class OSCameraPlugin {
     }
   }
 
-  /**
-   * Plays a video from the specified URL.
-   */
   playVideo(
     success: () => void,
     error: (err: PluginError) => void,
