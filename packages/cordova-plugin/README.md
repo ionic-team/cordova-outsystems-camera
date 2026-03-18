@@ -232,7 +232,7 @@ Enables basic storage and retrieval of dates and times.
 | Prop                     | Type                           | Description                                                                                                | Default             | Since |
 | ------------------------ | ------------------------------ | ---------------------------------------------------------------------------------------------------------- | ------------------- | ----- |
 | **`quality`**            | <code>number</code>            | The quality of image to return as JPEG, from 0-100. Default is 50.                                         | <code>50</code>     | 1.0.0 |
-| **`allowEditing`**       | <code>boolean</code>           | Whether to allow the user to crop or make small edits (platform specific).                                 |                     | 1.0.0 |
+| **`allowEdit`**          | <code>boolean</code>           | Whether to allow the user to crop or make small edits (platform specific).                                 |                     | 1.0.0 |
 | **`encodingType`**       | <code>'jpeg' \| 'png'</code>   | The encoding type of the returned image file. Default is 'jpeg'.                                           | <code>'jpeg'</code> | 1.0.0 |
 | **`targetWidth`**        | <code>number</code>            | The width to scale the image to, in pixels. Must be used with targetHeight. Aspect ratio remains constant. |                     | 1.0.0 |
 | **`targetHeight`**       | <code>number</code>            | The height to scale the image to, in pixels. Must be used with targetWidth. Aspect ratio remains constant. |                     | 1.0.0 |
