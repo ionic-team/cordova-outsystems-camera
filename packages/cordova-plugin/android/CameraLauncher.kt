@@ -132,7 +132,6 @@ class CameraLauncher : CordovaPlugin() {
 
         cameraManager = IONCAMRCameraManager(
             applicationId,
-            ".camera.provider",
             IONCAMRExifHelper(),
             IONCAMRFileHelper(),
             IONCAMRMediaHelper(),
@@ -140,7 +139,6 @@ class CameraLauncher : CordovaPlugin() {
         )
 
         videoManager = IONCAMRVideoManager(
-            ".camera.provider",
             IONCAMRFileHelper(),
         )
 
@@ -153,7 +151,6 @@ class CameraLauncher : CordovaPlugin() {
 
         editManager = IONCAMREditManager(
             applicationId,
-            ".camera.provider",
             IONCAMRExifHelper(),
             IONCAMRFileHelper(),
             IONCAMRMediaHelper(),
