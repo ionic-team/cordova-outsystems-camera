@@ -17,6 +17,14 @@ export function checkIfPWA(error: (err: PluginError) => void): boolean {
 }
 
 /**
+ * Checks if the unified plugin exists, meaning either there's the Capacitor plugin or the new Cordova plugin.
+ * @returns true if a unified plugin exists, false otherwise
+ */
+export function isUnifiedPluginDefined(): boolean {
+  return isCapacitorPluginDefined() || isNewCordovaPluginDefined();
+}
+
+/**
  * Checks if the Capacitor plugin is defined.
  * @returns true if window.CapacitorPlugins.OSCameraPlugin exists
  */
