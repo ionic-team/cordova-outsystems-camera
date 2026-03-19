@@ -128,6 +128,14 @@ export interface TakePhotoOptions {
      * @since 1.0.0
      */
     saveToGallery?: boolean;
+
+    /**
+     * Whether or not MediaResult should include its metadata.
+     * If an error occurs when obtaining the metadata, it will return empty.
+     * @default false
+     * @since 1.0.0
+     */
+    includeMetadata?: boolean;
 }
 
 export interface GalleryOptions {
