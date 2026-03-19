@@ -162,7 +162,7 @@ export interface GalleryOptions {
     includeMetadata?: boolean; // whether to include metadata in the MediaResult (default: true)
 }
 
-export interface PhotoEditOptions {
+export interface EditURIPhotoOptions {
     /**
      * The URI of the photo to edit. This is a string that represents the location of the photo on the device, which can be used to access or display the photo content.
      * @since 1.0.0
@@ -180,6 +180,24 @@ export interface PhotoEditOptions {
      * @since 1.0.0
      */
     includeMetadata?: boolean;
+}
+
+export interface EditPhotoOptions {
+  /**
+   * The base64 encoded image to edit.
+   *
+   * @since 8.1.0
+   */
+  inputImage: string;
+}
+
+export interface EditPhotoResult {
+  /**
+   * The edited image, base64 encoded.
+   *
+   * @since 8.1.0
+   */
+  outputImage: string;
 }
 
 export interface RecordVideoOptions {
@@ -279,7 +297,15 @@ export interface ICamera {
      * @returns A promise that resolves with the edited photo's details.
      * @since 1.0.0
      */
-    editPhoto(options: PhotoEditOptions): Promise<MediaResult>;
+    editURIPhoto(options: EditURIPhotoOptions): Promise<MediaResult>;
+
+    /**
+     * Opens the photo editor to allow the user to edit a photo.
+     * @param options Contains the photo to edit.
+     * @returns A promise that resolves with the edited photo.
+     * @since 1.0.0
+     */
+    editPhoto(options: EditPhotoOptions): Promise<EditPhotoResult>;
 
     /**
      * Records a video using the device's camera.
