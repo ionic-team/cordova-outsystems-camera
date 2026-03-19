@@ -775,9 +775,9 @@ class CameraLauncher : CordovaPlugin() {
             val parameters = args.getJSONObject(0)
             galleryMediaType = IONCAMRMediaType.fromValue(parameters.getInt(MEDIA_TYPE))
             galleryAllowMultipleSelection = parameters.getBoolean(ALLOW_MULTIPLE)
+            galleryLimit = parameters.optInt(GALLERY_LIMIT, 0)
             galleryIncludeMetadata = parameters.getBoolean(INCLUDE_METADATA)
             galleryAllowEdit = parameters.getBoolean(ALLOW_EDIT)
-            galleryLimit = parameters.optInt(GALLERY_LIMIT, 0)
         } catch (_: Exception) {
             sendError(IONCAMRError.GENERIC_CHOOSE_MULTIMEDIA_ERROR)
             return
