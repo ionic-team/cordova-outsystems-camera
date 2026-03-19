@@ -93,6 +93,8 @@ class CameraLauncher : CordovaPlugin() {
             = false
     private var saveVideoToGallery =
         false // Should we allow the user to save the video in the gallery
+    private var isPersistent
+            = true // Should we save the recorded video persistently or not
     private var includeMetadata =
         false // Should we allow the app to obtain metadata about the media item
     private var latestVersion =
@@ -130,7 +132,6 @@ class CameraLauncher : CordovaPlugin() {
 
         cameraManager = IONCAMRCameraManager(
             applicationId,
-            ".camera.provider",
             IONCAMRExifHelper(),
             IONCAMRFileHelper(),
             IONCAMRMediaHelper(),
@@ -138,7 +139,6 @@ class CameraLauncher : CordovaPlugin() {
         )
 
         videoManager = IONCAMRVideoManager(
-            ".camera.provider",
             IONCAMRFileHelper(),
         )
 
@@ -151,7 +151,6 @@ class CameraLauncher : CordovaPlugin() {
 
         editManager = IONCAMREditManager(
             applicationId,
-            ".camera.provider",
             IONCAMRExifHelper(),
             IONCAMRFileHelper(),
             IONCAMRMediaHelper(),
@@ -189,7 +188,7 @@ class CameraLauncher : CordovaPlugin() {
         if (applicationId == null) applicationId = cordova.activity.packageName
 
         when (action) {
-            "takePicture" -> handlePhoto(args, isLegacy = false)
+            "takePicture" -> handlePhoto(args, isLegacy = true)
             "takePhoto" -> handlePhoto(args, isLegacy = false)
             "editPicture" -> callEditImage(args)
             "editURIPicture" -> {
@@ -205,6 +204,7 @@ class CameraLauncher : CordovaPlugin() {
             "recordVideo" -> {
                 saveVideoToGallery = args.getJSONObject(0).getBoolean(SAVE_TO_GALLERY)
                 includeMetadata = args.getJSONObject(0).getBoolean(INCLUDE_METADATA)
+                isPersistent = args.getJSONObject(0).optBoolean(IS_PERSISTENT, true)
                 callCaptureVideo(saveVideoToGallery)
             }
 
@@ -544,6 +544,7 @@ class CameraLauncher : CordovaPlugin() {
                 cordova.activity,
                 uri,
                 saveVideoToGallery,
+                isPersistent,
                 includeMetadata,
                 { mediaResult ->
                     val gson = GsonBuilder().create()
@@ -1193,6 +1194,7 @@ class CameraLauncher : CordovaPlugin() {
         private const val VIDEO_URI = "videoURI"
         private const val SAVE_TO_GALLERY = "saveToGallery"
         private const val INCLUDE_METADATA = "includeMetadata"
+        private const val IS_PERSISTENT = "isPersistent"
         private const val LATEST_VERSION = "latestVersion"
         private const val ALLOW_MULTIPLE = "allowMultipleSelection"
         private const val GALLERY_LIMIT = "limit"
