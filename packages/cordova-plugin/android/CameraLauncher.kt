@@ -81,11 +81,7 @@ class CameraLauncher : CordovaPlugin() {
             = 0
     private var mediaType // What type of media to retrieve
             = 0
-    private var destType // Source type (needs to be saved for the permission handling)
-            = 0
-    private var srcType // Destination type (needs to be saved for permission handling)
-            = 0
-    private var saveToPhotoAlbum // Should the picture be saved to the device's photo album
+    private var saveToGallery // Should the picture be saved to the device's photo album
             = false
     private var correctOrientation // Should the pictures orientation be corrected
             = false
@@ -187,10 +183,10 @@ class CameraLauncher : CordovaPlugin() {
         if (applicationId == null) applicationId = cordova.activity.packageName
 
         when (action) {
-            "takePicture" -> handlePhoto(args, isLegacy = true)
-            "takePhoto" -> handlePhoto(args, isLegacy = false)
-            "editPicture" -> callEditImage(args)
-            "editURIPicture" -> {
+            "takePhoto" -> handlePhoto(args)
+            "chooseFromGallery" -> callChooseFromGalleryWithPermissions(args)
+            "editPhoto" -> callEditImage(args)
+            "editURIPhoto" -> {
                 editParameters = IONCAMREditParameters(
                     args.getJSONObject(0).getString(URI),
                     true,
@@ -199,36 +195,29 @@ class CameraLauncher : CordovaPlugin() {
                 )
                 callEditUriImage(editParameters)
             }
-
             "recordVideo" -> {
                 saveVideoToGallery = args.getJSONObject(0).getBoolean(SAVE_TO_GALLERY)
                 includeMetadata = args.getJSONObject(0).getBoolean(INCLUDE_METADATA)
                 isPersistent = args.getJSONObject(0).optBoolean(IS_PERSISTENT, true)
                 callCaptureVideo(saveVideoToGallery)
             }
-
-            "chooseFromGallery" -> callChooseFromGalleryWithPermissions(args)
             "playVideo" -> callPlayVideo(args)
             else -> return false
         }
         return true
     }// Create the cache directory if it doesn't exist
 
-    private fun handlePhoto(args: JSONArray, isLegacy: Boolean): Boolean {
+    private fun handlePhoto(args: JSONArray): Boolean {
         val parameters = args.getJSONObject(0)
         //Take the values from the arguments if they're not already defined (this is tricky)
         mQuality = parameters.getInt(QUALITY)
         targetWidth = parameters.optInt(WIDTH, -1)
         targetHeight = parameters.optInt(HEIGHT, -1)
-        encodingType = parameters.getInt(ENCODING_TYPE)
-        allowEdit = parameters.getBoolean(ALLOW_EDIT)
         correctOrientation = parameters.getBoolean(CORRECT_ORIENTATION)
-        saveToPhotoAlbum = parameters.getBoolean(SAVE_TO_ALBUM)
-        destType = parameters.getInt(DEST_TYPE)
-        srcType = parameters.getInt(SOURCE_TYPE)
-        mediaType = parameters.getInt(MEDIA_TYPE)
+        encodingType = parameters.getInt(ENCODING_TYPE)
+        saveToGallery = parameters.getBoolean(SAVE_TO_GALLERY)
+        allowEdit = parameters.getBoolean(ALLOW_EDIT)
         includeMetadata = parameters.optBoolean(INCLUDE_METADATA, false)
-        latestVersion = parameters.optBoolean(LATEST_VERSION, false)
 
         // If the user specifies a 0 or smaller width/height
         // make it -1 so later comparisons succeed
@@ -241,7 +230,7 @@ class CameraLauncher : CordovaPlugin() {
 
         // We don't return full-quality PNG files. The camera outputs a JPEG
         // so requesting it as a PNG provides no actual benefit
-        if (targetHeight == -1 && targetWidth == -1 && mQuality == 100 && !correctOrientation && encodingType == PNG && srcType == CAMERA) {
+        if (targetHeight == -1 && targetWidth == -1 && mQuality == 100 && !correctOrientation && encodingType == PNG) {
             encodingType = JPEG
         }
 
@@ -254,22 +243,14 @@ class CameraLauncher : CordovaPlugin() {
             mediaType,
             allowEdit,
             correctOrientation,
-            saveToPhotoAlbum,
+            saveToGallery,
             includeMetadata,
             latestVersion
         )
 
         try {
-            if (srcType == CAMERA) {
-                if (isLegacy) {
-                    callTakePicture(destType, encodingType)
-                } else {
-                    callTakePhoto(encodingType)
-                }
-            } else if (srcType == PHOTOLIBRARY || srcType == SAVEDPHOTOALBUM) {
-                callGetImage(srcType, destType, encodingType)
-            }
-        } catch (e: IllegalArgumentException) {
+            callTakePhoto(encodingType)
+        } catch (_: IllegalArgumentException) {
             callbackContext?.error("Illegal Argument Exception")
             val r = PluginResult(PluginResult.Status.ERROR)
             callbackContext?.sendPluginResult(r)
@@ -603,7 +584,7 @@ class CameraLauncher : CordovaPlugin() {
     fun callTakePhoto(encodingType: Int) {
         // we don't want to ask for these permissions from Android 11 onwards
         val saveAlbumPermission =
-            Build.VERSION.SDK_INT >= 30 || !saveToPhotoAlbum || (PermissionHelper.hasPermission(
+            Build.VERSION.SDK_INT >= 30 || !saveToGallery || (PermissionHelper.hasPermission(
                 this, Manifest.permission.READ_EXTERNAL_STORAGE
             ) && PermissionHelper.hasPermission(
                 this, Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -646,7 +627,7 @@ class CameraLauncher : CordovaPlugin() {
     fun callTakePicture(returnType: Int, encodingType: Int) {
 
         // we don't want to ask for these permissions from Android 11 onwards
-        val saveAlbumPermission = Build.VERSION.SDK_INT >= 30 || !saveToPhotoAlbum ||
+        val saveAlbumPermission = Build.VERSION.SDK_INT >= 30 || !saveToGallery ||
                 (PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) &&
                         PermissionHelper.hasPermission(
                             this,
@@ -1036,12 +1017,16 @@ class CameraLauncher : CordovaPlugin() {
                 cameraManager?.takePhoto(this.cordova.activity, encodingType, cameraLauncher)
             }
 
+            // this came from a deprecated client action, we can remove
+            /*
             TAKE_PIC_SEC -> {
                 cordova.setActivityResultCallback(this)
                 cameraManager?.takePicture(cordova.activity, destType, encodingType)
             }
+             */
+            // this came from a deprecated client action, we can remove
+            //SAVE_TO_ALBUM_SEC -> callGetImage(srcType, destType, encodingType)
 
-            SAVE_TO_ALBUM_SEC -> callGetImage(srcType, destType, encodingType)
             CAPTURE_VIDEO_SEC -> callCaptureVideo(saveVideoToGallery)
             CHOOSE_FROM_GALLERY_PERMISSION_CODE -> callChooseFromGallery()
             EDIT_PICTURE_SEC -> callEditUriImage(editParameters)
@@ -1055,8 +1040,6 @@ class CameraLauncher : CordovaPlugin() {
      */
     override fun onSaveInstanceState(): Bundle {
         val state = Bundle()
-        state.putInt("destType", destType)
-        state.putInt("srcType", srcType)
         state.putInt("mQuality", mQuality)
         state.putInt("targetWidth", targetWidth)
         state.putInt("targetHeight", targetHeight)
@@ -1065,7 +1048,7 @@ class CameraLauncher : CordovaPlugin() {
         state.putInt("numPics", numPics)
         state.putBoolean("allowEdit", allowEdit)
         state.putBoolean("correctOrientation", correctOrientation)
-        state.putBoolean("saveToPhotoAlbum", saveToPhotoAlbum)
+        state.putBoolean("saveToPhotoAlbum", saveToGallery)
         if (croppedUri != null) {
             state.putString(CROPPED_URI_KEY, croppedFilePath)
         }
@@ -1079,8 +1062,6 @@ class CameraLauncher : CordovaPlugin() {
     }
 
     override fun onRestoreStateForActivityResult(state: Bundle, callbackContext: CallbackContext) {
-        destType = state.getInt("destType")
-        srcType = state.getInt("srcType")
         mQuality = state.getInt("mQuality")
         targetWidth = state.getInt("targetWidth")
         targetHeight = state.getInt("targetHeight")
@@ -1089,7 +1070,7 @@ class CameraLauncher : CordovaPlugin() {
         numPics = state.getInt("numPics")
         allowEdit = state.getBoolean("allowEdit")
         correctOrientation = state.getBoolean("correctOrientation")
-        saveToPhotoAlbum = state.getBoolean("saveToPhotoAlbum")
+        saveToGallery = state.getBoolean("saveToPhotoAlbum")
         if (state.containsKey(CROPPED_URI_KEY)) {
             croppedUri = Uri.parse(state.getString(CROPPED_URI_KEY))
         }
@@ -1206,7 +1187,6 @@ class CameraLauncher : CordovaPlugin() {
         private const val ENCODING_TYPE = "encodingType"
         private const val ALLOW_EDIT = "allowEdit"
         private const val CORRECT_ORIENTATION = "correctOrientation"
-        private const val SAVE_TO_ALBUM = "saveToPhotoAlbum"
         private const val SOURCE_TYPE = "sourceType"
         private const val DEST_TYPE = "destinationType"
 
