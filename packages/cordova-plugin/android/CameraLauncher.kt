@@ -115,7 +115,6 @@ class CameraLauncher : CordovaPlugin() {
     private var galleryMediaType: IONCAMRMediaType = IONCAMRMediaType.ALL
     private var galleryAllowMultipleSelection: Boolean = false
     private var galleryAllowEdit: Boolean = false
-    private var galleryAllowEditInApp: Boolean = true
     private var galleryLimit: Int = 0
     private var galleryIncludeMetadata: Boolean = false
     private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
@@ -479,16 +478,16 @@ class CameraLauncher : CordovaPlugin() {
             camParameters?.let { params ->
                 manager.processResultFromCamera(
                     cordova.activity, try {
-                    result.data
-                } catch (e: Exception) {
-                    TODO("Not yet implemented")
-                }, params, {
-                    handleBase64(it)
-                }, { mediaResult ->
-                    handleMediaResult(mediaResult)
-                }, {
-                    sendError(it)
-                })
+                        result.data
+                    } catch (e: Exception) {
+                        TODO("Not yet implemented")
+                    }, params, {
+                        handleBase64(it)
+                    }, { mediaResult ->
+                        handleMediaResult(mediaResult)
+                    }, {
+                        sendError(it)
+                    })
             }
         } catch (e: Exception) {
             sendError(IONCAMRError.PROCESS_IMAGE_ERROR)
@@ -797,7 +796,6 @@ class CameraLauncher : CordovaPlugin() {
             galleryAllowMultipleSelection = parameters.getBoolean(ALLOW_MULTIPLE)
             galleryIncludeMetadata = parameters.getBoolean(INCLUDE_METADATA)
             galleryAllowEdit = parameters.getBoolean(ALLOW_EDIT)
-            galleryAllowEditInApp = parameters.optBoolean(EDIT_IN_APP, true)
             galleryLimit = parameters.optInt(GALLERY_LIMIT, 0)
         } catch (_: Exception) {
             sendError(IONCAMRError.GENERIC_CHOOSE_MULTIMEDIA_ERROR)
@@ -1198,7 +1196,6 @@ class CameraLauncher : CordovaPlugin() {
         private const val LATEST_VERSION = "latestVersion"
         private const val ALLOW_MULTIPLE = "allowMultipleSelection"
         private const val GALLERY_LIMIT = "limit"
-        private const val EDIT_IN_APP = "editInApp"
         private const val MEDIA_TYPE = "mediaType"
         private const val URI = "uri"
 
