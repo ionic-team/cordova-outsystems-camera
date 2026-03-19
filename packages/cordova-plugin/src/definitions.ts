@@ -86,7 +86,7 @@ export interface TakePhotoOptions {
      * Whether to allow the user to crop or make small edits (platform specific).
      * @since 1.0.0
      */
-    allowEditing?: boolean;
+    allowEdit?: boolean;
 
     /**
      * The encoding type for the captured photo - JPEG or PNG.
@@ -147,11 +147,21 @@ export interface GalleryOptions {
     mediaType?: 'photo' | 'video' | 'all';
 
     /**
-      * Whether to allow the user to select multiple media files from the gallery. Default is false (only single selection allowed).
-      * @default false
-      * @since 1.0.0
-      */
+     * Whether to allow the user to select multiple media files from the gallery. Default is false (only single selection allowed).
+     * @default false
+     * @since 1.0.0
+     */
     allowMultipleSelection?: boolean;
+
+    /**
+     * Maximum number of photos the user will be able to choose.
+     * Note: This option is only supported on Android 13+ and iOS.
+     *
+     * @default 0 (unlimited)
+     *
+     * @since 1.2.0
+     */
+    limit?: number;
 
     /**
      * Whether to include metadata in the MediaResult object for each selected media file. Default is true.
@@ -160,6 +170,13 @@ export interface GalleryOptions {
      * @since 1.0.0
      */
     includeMetadata?: boolean; // whether to include metadata in the MediaResult (default: true)
+
+    /**
+     * Whether to allow the user to crop or make small edits (platform specific).
+     * @since 1.0.0
+     */
+    allowEdit?: boolean;
+    
 }
 
 export interface EditURIPhotoOptions {
