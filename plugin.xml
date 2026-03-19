@@ -8,14 +8,6 @@
         <clobbers target="cordova.plugins.Camera" />
     </js-module>
 
-    <!-- Deprecated -->
-    <js-module name="DeprecatedCamera" src="packages/cordova-plugin/src/deprecated/Camera.js">
-        <clobbers target="navigator.camera" />
-    </js-module>
-    <js-module name="DeprecatedCameraConstants" src="packages/cordova-plugin/src/deprecated/CameraConstants.js">
-        <clobbers target="Camera" />
-    </js-module>
-
     <!-- android -->
     <platform name="android">
 

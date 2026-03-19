@@ -187,6 +187,12 @@ export interface RecordVideoOptions {
      * @since 1.0.0
      */
     includeMetadata?: boolean;
+    /**
+     * Whether the recorded video should be persistent. Default is true.
+     * @default true
+     * @since 1.0.0
+     */
+    isPersistent?: boolean;
 }
 
 export interface PlayVideoOptions {

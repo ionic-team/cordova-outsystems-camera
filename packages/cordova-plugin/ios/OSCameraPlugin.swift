@@ -21,40 +21,61 @@ class OSCameraPlugin: CDVPlugin {
             self.cameraManager?.cleanTemporaryFiles()
         }
     }
-    
-    @objc(takePicture:)
-    @available(*, deprecated, message: "Use takePhoto(command:) instead. This method will be removed in future versions.")
-    func takePicture(command: CDVInvokedUrlCommand) {
-        takePhoto(command: command)
-    }
 
     @objc(takePhoto:)
     func takePhoto(command: CDVInvokedUrlCommand) {
         self.callbackId = command.callbackId
 
-        guard let parametersDictionary = command.argument(at: 0) as? [String: Any],
-              let parametersData = try? JSONSerialization.data(withJSONObject: parametersDictionary),
-              let parameters = try? JSONDecoder().decode(OSCAMRTakePhotoParameters.self, from: parametersData)
-        else { return self.callback(error: .takePictureArguments) }
-
-        // This 🔨 is required in order not to break Android's implementation
-        if parameters.sourceType == 0 {
-            return self.chooseSinglePicture(allowEdit: parameters.allowEdit)
+        guard
+            let parameters: OSCAMRTakePhotoParameters = decodeParameters(from: command),
+            let options = try? IONCAMRTakePhotoOptions(from: parameters)
+        else {
+            return self.callback(error: .takePictureArguments)
         }
     
-        guard let options = try? IONCAMRTakePhotoOptions(from: parameters)
-        else { return self.callback(error: .takePictureArguments) }
-
         self.commandDelegate.run { [weak self] in
             guard let self = self else { return }
             self.cameraManager?.takePhoto(with: options)
+        }
+    }
+    
+    @objc(chooseFromGallery:)
+    func chooseFromGallery(command: CDVInvokedUrlCommand) {
+        self.callbackId = command.callbackId
+        
+        guard let parameters: OSCAMRChooseFromGalleryParameters = decodeParameters(from: command) else {
+            return self.callback(error: .chooseMultimediaIssue)
+        }
+                
+        self.commandDelegate.run { [weak self] in
+            guard let self = self else { return }
+            self.galleryManager?.chooseMultimedia(parameters.mediaType, parameters.allowMultipleSelection, parameters.includeMetadata, and: parameters.allowEdit)
+        }
+    }
+    
+    @objc(editURIPhoto:)
+    func editURIPhoto(command: CDVInvokedUrlCommand) {
+        self.callbackId = command.callbackId
+        
+        guard let parameters: OSCAMREditPhotoParameters = decodeParameters(from: command) else {
+            return self.callback(error: .editPictureIssue)
+        }
+        let options = IONCAMREditOptions(from: parameters)
+        
+        self.commandDelegate.run { [weak self] in
+            guard let self = self else { return }
+            self.editManager?.editPhoto(from: parameters.uri, with: options)
         }
     }
 
     @objc(editPicture:)
     func editPicture(command: CDVInvokedUrlCommand) {
         self.callbackId = command.callbackId
-        guard let imageBase64 = command.argument(at: 0) as? String, let imageData = Data(base64Encoded: imageBase64), let image = UIImage(data: imageData)
+        
+        guard
+            let imageBase64 = command.argument(at: 0) as? String,
+            let imageData = Data(base64Encoded: imageBase64),
+            let image = UIImage(data: imageData)
         else {
             self.callback(error: .invalidImageData)
             return
@@ -65,31 +86,14 @@ class OSCameraPlugin: CDVPlugin {
             self.editManager?.editPicture(image)
         }
     }
-
-    @objc(editURIPicture:)
-    func editURIPicture(command: CDVInvokedUrlCommand) {
-        self.callbackId = command.callbackId
-        
-        guard let parametersDictionary = command.argument(at: 0) as? [String: Any],
-              let parametersData = try? JSONSerialization.data(withJSONObject: parametersDictionary),
-              let parameters = try? JSONDecoder().decode(OSCAMREditPictureParameters.self, from: parametersData)
-        else { return self.callback(error: .editPictureIssue) }
-        let options = IONCAMREditOptions(from: parameters)
-        
-        self.commandDelegate.run { [weak self] in
-            guard let self = self else { return }
-            self.editManager?.editPicture(from: parameters.uri, with: options)
-        }
-    }
     
     @objc(recordVideo:)
     func recordVideo(command: CDVInvokedUrlCommand) {
         self.callbackId = command.callbackId
         
-        guard let parametersDictionary = command.argument(at: 0) as? [String: Bool],
-              let parametersData = try? JSONSerialization.data(withJSONObject: parametersDictionary),
-              let parameters = try? JSONDecoder().decode(OSCAMRRecordVideoParameters.self, from: parametersData)
-        else { return self.callback(error: .captureVideoIssue) }
+        guard let parameters: OSCAMRRecordVideoParameters = decodeParameters(from: command) else {
+            return self.callback(error: .captureVideoIssue)
+        }
         let options = IONCAMRRecordVideoOptions(from: parameters)
         
         self.commandDelegate.run { [weak self] in
@@ -98,36 +102,11 @@ class OSCameraPlugin: CDVPlugin {
         }
     }
     
-    func chooseSinglePicture(allowEdit: Bool) {
-        self.commandDelegate.run { [weak self] in
-            guard let self = self else { return }
-            self.galleryManager?.choosePicture(allowEdit)
-        }
-    }
-    
-    @objc(chooseFromGallery:)
-    func chooseFromGallery(command: CDVInvokedUrlCommand) {
-        self.callbackId = command.callbackId
-        
-        guard let parameterDictionary = command.argument(at: 0) as? [String: Any],
-              let parameterData = try? JSONSerialization.data(withJSONObject: parameterDictionary),
-              let parameters = try? JSONDecoder().decode(OSCAMRChooseGalleryParameters.self, from: parameterData)
-        else { return self.callback(error: .chooseMultimediaIssue) }
-                
-        self.commandDelegate.run { [weak self] in
-            guard let self = self else { return }
-            self.galleryManager?.chooseMultimedia(parameters.mediaType, parameters.allowMultipleSelection, parameters.includeMetadata, and: parameters.allowEdit)
-        }
-    }
-    
     @objc(playVideo:)
     func playVideo(command: CDVInvokedUrlCommand) {
         self.callbackId = command.callbackId
         
-        guard let parameterDictionary = command.argument(at: 0) as? [String: Any],
-              let parameterData = try? JSONSerialization.data(withJSONObject: parameterDictionary),
-              let parameters = try? JSONDecoder().decode(OSCAMRPlayVideoParameters.self, from: parameterData)
-        else {
+        guard let parameters: OSCAMRPlayVideoParameters = decodeParameters(from: command) else {
             return self.callback(error: .playVideoIssue)
         }
         
@@ -144,6 +123,13 @@ class OSCameraPlugin: CDVPlugin {
                 }
             }
         }
+    }
+    
+    private func decodeParameters<T: Decodable>(from command: CDVInvokedUrlCommand) -> T? {
+        guard let dict = command.argument(at: 0) as? [String: Any],
+              let data = try? JSONSerialization.data(withJSONObject: dict)
+        else { return nil }
+        return try? JSONDecoder().decode(T.self, from: data)
     }
     
     private func sendResult(result: String? = nil, error: NSError? = nil, callBackID: String) {
