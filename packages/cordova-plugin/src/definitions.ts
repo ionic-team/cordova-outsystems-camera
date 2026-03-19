@@ -89,12 +89,12 @@ export interface TakePhotoOptions {
     allowEditing?: boolean;
 
     /**
-     * The encoding type of the returned image file. Default is 'jpeg'.
+     * The encoding type for the captured photo - JPEG or PNG.
      *
-     * @default 'jpeg'
+     * @default EncodingType.JPEG
      * @since 1.0.0
      */
-    encodingType?: 'jpeg' | 'png';
+    encodingType?: EncodingType;
 
     /**
      * The width to scale the image to, in pixels. Must be used with targetHeight. Aspect ratio remains constant.
@@ -221,6 +221,11 @@ export interface PluginError {
      * @since 1.0.0
      */
     exception?: string;
+}
+
+export enum EncodingType {
+  JPEG = 0,
+  PNG = 1,
 }
 
 /** 
