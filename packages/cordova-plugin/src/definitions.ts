@@ -188,7 +188,7 @@ export interface RecordVideoOptions {
      */
     includeMetadata?: boolean;
     /**
-     * Whether the recorded video should be persistent. Default is true.
+     * Whether to save the recorded the video persistently (even if not saved in the gallery). Default is true.
      * @default true
      * @since 1.0.0
      */
