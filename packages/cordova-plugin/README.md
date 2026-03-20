@@ -18,9 +18,11 @@ cordova plugin add <path-to-repo-local-clone>
 * [`chooseFromGallery(...)`](#choosefromgallery)
 * [`pickLimitedGallery(...)`](#picklimitedgallery)
 * [`chooseFromLimitedGallery(...)`](#choosefromlimitedgallery)
+* [`editURIPhoto(...)`](#edituriphoto)
 * [`editPhoto(...)`](#editphoto)
 * [`recordVideo(...)`](#recordvideo)
 * [Interfaces](#interfaces)
+* [Enums](#enums)
 
 </docgen-index>
 
@@ -105,19 +107,38 @@ Opens the device's limited photo gallery to allow the user to select one or more
 --------------------
 
 
-### editPhoto(...)
+### editURIPhoto(...)
 
 ```typescript
-editPhoto(options: PhotoEditOptions) => Promise<MediaResult>
+editURIPhoto(options: EditURIPhotoOptions) => Promise<MediaResult>
 ```
 
 Opens the photo editor to allow the user to edit a photo.
 
-| Param         | Type                                                          | Description                                     |
-| ------------- | ------------------------------------------------------------- | ----------------------------------------------- |
-| **`options`** | <code><a href="#photoeditoptions">PhotoEditOptions</a></code> | Options to customize the photo editing process. |
+| Param         | Type                                                                | Description                                     |
+| ------------- | ------------------------------------------------------------------- | ----------------------------------------------- |
+| **`options`** | <code><a href="#edituriphotooptions">EditURIPhotoOptions</a></code> | Options to customize the photo editing process. |
 
 **Returns:** <code>Promise&lt;<a href="#mediaresult">MediaResult</a>&gt;</code>
+
+**Since:** 1.0.0
+
+--------------------
+
+
+### editPhoto(...)
+
+```typescript
+editPhoto(options: EditPhotoOptions) => Promise<EditPhotoResult>
+```
+
+Opens the photo editor to allow the user to edit a photo.
+
+| Param         | Type                                                          | Description                 |
+| ------------- | ------------------------------------------------------------- | --------------------------- |
+| **`options`** | <code><a href="#editphotooptions">EditPhotoOptions</a></code> | Contains the photo to edit. |
+
+**Returns:** <code>Promise&lt;<a href="#editphotoresult">EditPhotoResult</a>&gt;</code>
 
 **Since:** 1.0.0
 
@@ -229,28 +250,31 @@ Enables basic storage and retrieval of dates and times.
 
 #### TakePhotoOptions
 
-| Prop                     | Type                           | Description                                                                                                | Default             | Since |
-| ------------------------ | ------------------------------ | ---------------------------------------------------------------------------------------------------------- | ------------------- | ----- |
-| **`quality`**            | <code>number</code>            | The quality of image to return as JPEG, from 0-100. Default is 50.                                         | <code>50</code>     | 1.0.0 |
-| **`allowEdit`**          | <code>boolean</code>           | Whether to allow the user to crop or make small edits (platform specific).                                 |                     | 1.0.0 |
-| **`encodingType`**       | <code>'jpeg' \| 'png'</code>   | The encoding type of the returned image file. Default is 'jpeg'.                                           | <code>'jpeg'</code> | 1.0.0 |
-| **`targetWidth`**        | <code>number</code>            | The width to scale the image to, in pixels. Must be used with targetHeight. Aspect ratio remains constant. |                     | 1.0.0 |
-| **`targetHeight`**       | <code>number</code>            | The height to scale the image to, in pixels. Must be used with targetWidth. Aspect ratio remains constant. |                     | 1.0.0 |
-| **`cameraDirection`**    | <code>'front' \| 'rear'</code> | The camera to use (front- or back-facing). Default is 'rear'.                                              | <code>'rear'</code> | 1.0.0 |
-| **`correctOrientation`** | <code>boolean</code>           | Whether to rotate the image to correct for the orientation of the device during capture. Default is false. | <code>false</code>  | 1.0.0 |
-| **`saveToGallery`**      | <code>boolean</code>           | Whether to save the image to the gallery on the device after capture. Default is false.                    | <code>false</code>  | 1.0.0 |
+| Prop                     | Type                                                  | Description                                                                                                                                              | Default                        | Since |
+| ------------------------ | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ | ----- |
+| **`quality`**            | <code>number</code>                                   | The quality of image to return as JPEG, from 0-100. Default is 50.                                                                                       | <code>50</code>                | 1.0.0 |
+| **`allowEdit`**          | <code>boolean</code>                                  | Whether to allow the user to crop or make small edits (platform specific).                                                                               |                                | 1.0.0 |
+| **`encodingType`**       | <code><a href="#encodingtype">EncodingType</a></code> | The encoding type for the captured photo - JPEG or PNG.                                                                                                  | <code>EncodingType.JPEG</code> | 1.0.0 |
+| **`targetWidth`**        | <code>number</code>                                   | The width to scale the image to, in pixels. Must be used with targetHeight. Aspect ratio remains constant.                                               |                                | 1.0.0 |
+| **`targetHeight`**       | <code>number</code>                                   | The height to scale the image to, in pixels. Must be used with targetWidth. Aspect ratio remains constant.                                               |                                | 1.0.0 |
+| **`cameraDirection`**    | <code>'FRONT' \| 'REAR'</code>                        | The camera to use (front- or back-facing). Default is 'rear'.                                                                                            | <code>'rear'</code>            | 1.0.0 |
+| **`correctOrientation`** | <code>boolean</code>                                  | Whether to rotate the image to correct for the orientation of the device during capture. Default is false.                                               | <code>false</code>             | 1.0.0 |
+| **`saveToGallery`**      | <code>boolean</code>                                  | Whether to save the image to the gallery on the device after capture. Default is false.                                                                  | <code>false</code>             | 1.0.0 |
+| **`includeMetadata`**    | <code>boolean</code>                                  | Whether or not <a href="#mediaresult">MediaResult</a> should include its metadata. If an error occurs when obtaining the metadata, it will return empty. | <code>false</code>             | 1.0.0 |
 
 
 #### GalleryOptions
 
-| Prop                         | Type                                     | Description                                                                                                                                                                                                                                                                                                       | Default            | Since |
-| ---------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ----- |
-| **`mediaType`**              | <code>'photo' \| 'video' \| 'all'</code> | The type of media to select from the gallery: 'photo', 'video', or 'all'.                                                                                                                                                                                                                                         |                    | 1.0.0 |
-| **`allowMultipleSelection`** | <code>boolean</code>                     | Whether to allow the user to select multiple media files from the gallery. Default is false (only single selection allowed).                                                                                                                                                                                      | <code>false</code> | 1.0.0 |
-| **`includeMetadata`**        | <code>boolean</code>                     | Whether to include metadata in the <a href="#mediaresult">MediaResult</a> object for each selected media file. Default is true. If false, the metadata property in <a href="#mediaresult">MediaResult</a> will be null or undefined, and only the result (file URI, base64 string, or data URI) will be returned. | <code>true</code>  | 1.0.0 |
+| Prop                         | Type                                     | Description                                                                                                                                                                                                                                                                                                       | Default                    | Since |
+| ---------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | ----- |
+| **`mediaType`**              | <code>'photo' \| 'video' \| 'all'</code> | The type of media to select from the gallery: 'photo', 'video', or 'all'.                                                                                                                                                                                                                                         |                            | 1.0.0 |
+| **`allowMultipleSelection`** | <code>boolean</code>                     | Whether to allow the user to select multiple media files from the gallery. Default is false (only single selection allowed).                                                                                                                                                                                      | <code>false</code>         | 1.0.0 |
+| **`limit`**                  | <code>number</code>                      | Maximum number of photos the user will be able to choose. Note: This option is only supported on Android 13+ and iOS.                                                                                                                                                                                             | <code>0 (unlimited)</code> | 1.2.0 |
+| **`includeMetadata`**        | <code>boolean</code>                     | Whether to include metadata in the <a href="#mediaresult">MediaResult</a> object for each selected media file. Default is true. If false, the metadata property in <a href="#mediaresult">MediaResult</a> will be null or undefined, and only the result (file URI, base64 string, or data URI) will be returned. | <code>true</code>          | 1.0.0 |
+| **`allowEdit`**              | <code>boolean</code>                     | Whether to allow the user to crop or make small edits (platform specific).                                                                                                                                                                                                                                        |                            | 1.0.0 |
 
 
-#### PhotoEditOptions
+#### EditURIPhotoOptions
 
 | Prop                  | Type                 | Description                                                                                                                                                       | Default            | Since |
 | --------------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ----- |
@@ -259,11 +283,37 @@ Enables basic storage and retrieval of dates and times.
 | **`includeMetadata`** | <code>boolean</code> | Whether to include metadata in the <a href="#mediaresult">MediaResult</a>. Default is true.                                                                       | <code>true</code>  | 1.0.0 |
 
 
+#### EditPhotoResult
+
+| Prop              | Type                | Description                       | Since |
+| ----------------- | ------------------- | --------------------------------- | ----- |
+| **`outputImage`** | <code>string</code> | The edited image, base64 encoded. | 8.1.0 |
+
+
+#### EditPhotoOptions
+
+| Prop             | Type                | Description                       | Since |
+| ---------------- | ------------------- | --------------------------------- | ----- |
+| **`inputImage`** | <code>string</code> | The base64 encoded image to edit. | 8.1.0 |
+
+
 #### RecordVideoOptions
 
-| Prop                  | Type                 | Description                                                                                 | Default            | Since |
-| --------------------- | -------------------- | ------------------------------------------------------------------------------------------- | ------------------ | ----- |
-| **`saveToGallery`**   | <code>boolean</code> | Whether to save the recorded video to the gallery. Default is false.                        | <code>false</code> | 1.0.0 |
-| **`includeMetadata`** | <code>boolean</code> | Whether to include metadata in the <a href="#mediaresult">MediaResult</a>. Default is true. | <code>true</code>  | 1.0.0 |
+| Prop                  | Type                 | Description                                                                                              | Default            | Since |
+| --------------------- | -------------------- | -------------------------------------------------------------------------------------------------------- | ------------------ | ----- |
+| **`saveToGallery`**   | <code>boolean</code> | Whether to save the recorded video to the gallery. Default is false.                                     | <code>false</code> | 1.0.0 |
+| **`includeMetadata`** | <code>boolean</code> | Whether to include metadata in the <a href="#mediaresult">MediaResult</a>. Default is true.              | <code>true</code>  | 1.0.0 |
+| **`isPersistent`**    | <code>boolean</code> | Whether to save the recorded the video persistently (even if not saved in the gallery). Default is true. | <code>true</code>  | 1.0.0 |
+
+
+### Enums
+
+
+#### EncodingType
+
+| Members    | Value          |
+| ---------- | -------------- |
+| **`JPEG`** | <code>0</code> |
+| **`PNG`**  | <code>1</code> |
 
 </docgen-api>

@@ -1,117 +1,228 @@
 import {
-  GalleryOptions,
-  MediaResult,
-  PhotoEditOptions,
-  PlayVideoOptions,
-  PluginError,
-  RecordVideoOptions,
-  TakePhotoOptions
+    GalleryOptions,
+    MediaResult,
+    EditURIPhotoOptions,
+    PlayVideoOptions,
+    PluginError,
+    RecordVideoOptions,
+    TakePhotoOptions,
+    EditPhotoOptions,
+    EditPhotoResult
 } from "../../cordova-plugin/src/definitions";
-import { checkIfPWA, isUnifiedPluginDefined } from "./helpers";
+import { checkIfPWA, isUnifiedPluginDefined, isCapacitorPluginDefined } from "./helpers";
+
+/**
+ * TODO for legacy clobber - test again once outsystems-wrapper has been finalized and tested on new Cordova / capacitor Plugin
+ * 
+ * saveToGallery -> use saveToPhotoAlbum on legacy.
+ * targetWidth and targetHeight -> make sure those work
+ *     destinationType: Camera.DestinationType.DATA_URL, 
+ *    sourceType : Camera.PictureSourceType.CAMERA,
+ * confirm media result array still is returned correctly for chooseFromGallery 
+ */
 
 class OSCameraPlugin {
 
-  takePhoto(
-    success: (result: MediaResult) => void,
-    error: (err: PluginError) => void,
-    options: TakePhotoOptions
-  ): void {
-    if (checkIfPWA(error)) {
-      return;  // PWA implementation is outside this wrapper's scope
+    takePhoto(
+        success: (result: MediaResult) => void,
+        error: (err: PluginError) => void,
+        options: TakePhotoOptions
+    ): void {
+        if (checkIfPWA(error)) {
+            return;  // PWA implementation is outside this wrapper's scope
+        }
+
+        if (isUnifiedPluginDefined()) {
+            let directionInteger: any = options.cameraDirection as any;
+            if (directionInteger == 1) {
+                options.cameraDirection = 'FRONT';
+            } else {
+                options.cameraDirection = 'REAR';
+            }
+            if (isCapacitorPluginDefined()) {
+                // @ts-ignore
+                window.CapacitorPlugins.Camera.takePhoto(options)
+                    .then(success)
+                    .catch(error);
+            } else {
+                // @ts-ignore
+                cordova.plugins.Camera.takePhoto(options, success, error);
+            }
+        } else {
+            let correctedLegacyOptions: any = options;
+            correctedLegacyOptions.saveToPhotoAlbum = options.saveToGallery;
+            // @ts-ignore
+            if (typeof (Camera) !== "undefined") {
+                // @ts-ignore
+                correctedLegacyOptions.destinationType = Camera.DestinationType.DATA_URL;
+                // @ts-ignore
+                correctedLegacyOptions.source = Camera.PictureSourceType.CAMERA;
+            }
+            // @ts-ignore
+            navigator.camera.takePicture(success, error, correctedLegacyOptions);
+        }
     }
 
-    if (isUnifiedPluginDefined()) {
-      // TODO call unified wrapper
-    } else {
-      // @ts-ignore
-      navigator.camera.takePicture(success, error, options);
-    }
-  }
+    chooseFromGallery(
+        success: (result: any) => void,
+        error: (err: PluginError) => void,
+        options: GalleryOptions
+    ): void {
+        if (checkIfPWA(error)) {
+            return;  // PWA implementation is outside this wrapper's scope
+        }
+        let successCallbackWithMapping = (output: any) => {
+            if (typeof output === "string") {
+                let processedOutput: any = output;
+                try {
+                    processedOutput = JSON.parse(output);
+                    alert("processedOutput: " + output);
+                    // check if processedOutput is an array, if not, assume it's an object with a results field that contains the array
+                    if (Array.isArray(processedOutput)) {
+                        // output should already be a Media Result array, no processing required
+                        success(output);
+                    } else {
+                        // for unified plugins, the MediaResult array comes inside an object
+                        if (processedOutput.results && Array.isArray(processedOutput.results)) {
+                            const unifiedOutput = JSON.stringify(processedOutput.results);
+                            success(unifiedOutput);
+                        } else {
+                            success(output); // edge-case - not expected to land here unless output is miscontructed from native
+                        }
+                    }
+                } catch (e) {
+                    success(output); // edge-case - not expected to land here unless output is miscontructed from native
+                }
+            } else {
+                success(output);  // edge-case - not expected to land here unless output is miscontructed from native
+            }
+        }
 
-  chooseFromGallery(
-    success: (result: MediaResult[]) => void,
-    error: (err: PluginError) => void,
-    options: GalleryOptions
-  ): void {
-    if (checkIfPWA(error)) {
-      return;  // PWA implementation is outside this wrapper's scope
-    }
-
-    if (isUnifiedPluginDefined()) {
-      // TODO call unified wrapper
-    } else {
-      // @ts-ignore
-      navigator.camera.chooseFromGallery(success, error, options);
-    }
-  }
-
-  editPhoto(
-    success: (imageData: any) => void,
-    error: (err: PluginError) => void,
-    input: {image: string}
-  ): void {
-    if (checkIfPWA(error)) {
-      return;  // PWA implementation is outside this wrapper's scope
-    }
-
-    if (isUnifiedPluginDefined()) {
-      // TODO call unified wrapper
-    } else {
-      // @ts-ignore
-      navigator.camera.editPicture(success, error, input);
-    }
-  }
-
-  editURIPhoto(
-    success: (result: MediaResult) => void,
-    error: (err: PluginError) => void,
-    options: PhotoEditOptions
-  ): void {
-    if (checkIfPWA(error)) {
-      return;  // PWA implementation is outside this wrapper's scope
-    }
-
-    if (isUnifiedPluginDefined()) {
-      // TODO call unified wrapper
-    } else {
-      // @ts-ignore
-      navigator.camera.editURIPicture(success, error, options);
-    }
-  }
-
-  recordVideo(
-    success: (result: MediaResult) => void,
-    error: (err: PluginError) => void,
-    options: RecordVideoOptions
-  ): void {
-    if (checkIfPWA(error)) {
-      return;  // PWA implementation is outside this wrapper's scope
+        if (isUnifiedPluginDefined()) {
+            if (isCapacitorPluginDefined()) {
+                // @ts-ignore
+                window.CapacitorPlugins.Camera.chooseFromGallery(options)
+                    .then(successCallbackWithMapping)
+                    .catch(error);
+            } else {
+                // @ts-ignore
+                cordova.plugins.Camera.chooseFromGallery(options, successCallbackWithMapping, error);
+            }
+        } else {
+            // @ts-ignore
+            navigator.camera.chooseFromGallery(successCallbackWithMapping, error, options);
+        }
     }
 
-    if (isUnifiedPluginDefined()) {
-      // TODO call unified wrapper
-    } else {
-      // @ts-ignore
-      navigator.camera.recordVideo(success, error, options);
-    }
-  }
+    editPhoto(
+        success: (imageData: any) => void,
+        error: (err: PluginError) => void,
+        input: { image: string }
+    ): void {
+        if (checkIfPWA(error)) {
+            return;  // PWA implementation is outside this wrapper's scope
+        }
 
-  playVideo(
-    success: () => void,
-    error: (err: PluginError) => void,
-    options: PlayVideoOptions
-  ): void {
-    if (checkIfPWA(error)) {
-      return;  // PWA implementation is outside this wrapper's scope
+        if (isUnifiedPluginDefined()) {
+            let unifiedSuccessCallback = (result: EditPhotoResult) => {
+                success(result.outputImage);
+            }
+            let options: EditPhotoOptions = {
+                inputImage: input.image
+            }
+            if (isCapacitorPluginDefined()) {
+                // @ts-ignore
+                window.CapacitorPlugins.Camera.editPhoto(options)
+                    .then(unifiedSuccessCallback)
+                    .catch(error);
+            } else {
+                // @ts-ignore
+                cordova.plugins.Camera.editPhoto(options, unifiedSuccessCallback, error);
+            }
+        } else {
+            // @ts-ignore
+            navigator.camera.editPicture(success, error, input);
+        }
     }
 
-    if (isUnifiedPluginDefined()) {
-      // TODO call unified wrapper
-    } else {
-      // @ts-ignore
-      navigator.camera.playVideo(success, error, options);
+    editURIPhoto(
+        success: (result: MediaResult) => void,
+        error: (err: PluginError) => void,
+        options: EditURIPhotoOptions
+    ): void {
+        if (checkIfPWA(error)) {
+            return;  // PWA implementation is outside this wrapper's scope
+        }
+
+        if (isUnifiedPluginDefined()) {
+            if (isCapacitorPluginDefined()) {
+                // @ts-ignore
+                window.CapacitorPlugins.Camera.editURIPhoto(options)
+                    .then(success)
+                    .catch(error);
+            } else {
+                // @ts-ignore
+                cordova.plugins.Camera.editURIPhoto(options, success, error);
+            }
+        } else {
+            let correctedLegacyOptions: any = options;
+            correctedLegacyOptions.saveToPhotoAlbum = options.saveToGallery;
+            // @ts-ignore
+            navigator.camera.editURIPicture(success, error, correctedLegacyOptions);
+        }
     }
-  }
+
+    recordVideo(
+        success: (result: MediaResult) => void,
+        error: (err: PluginError) => void,
+        options: RecordVideoOptions
+    ): void {
+        if (checkIfPWA(error)) {
+            return;  // PWA implementation is outside this wrapper's scope
+        }
+
+        if (isUnifiedPluginDefined()) {
+            if (isCapacitorPluginDefined()) {
+                // @ts-ignore
+                window.CapacitorPlugins.Camera.recordVideo(options)
+                    .then(success)
+                    .catch(error);
+            } else {
+                // @ts-ignore
+                cordova.plugins.Camera.recordVideo(options, success, error);
+            }
+        } else {
+            let correctedLegacyOptions: any = options;
+            correctedLegacyOptions.saveToPhotoAlbum = options.saveToGallery;
+            // @ts-ignore
+            navigator.camera.recordVideo(success, error, correctedLegacyOptions);
+        }
+    }
+
+    playVideo(
+        success: () => void,
+        error: (err: PluginError) => void,
+        options: PlayVideoOptions
+    ): void {
+        if (checkIfPWA(error)) {
+            return;  // PWA implementation is outside this wrapper's scope
+        }
+
+        if (isUnifiedPluginDefined()) {
+            if (isCapacitorPluginDefined()) {
+                // @ts-ignore
+                window.CapacitorPlugins.Camera.playVideo(options)
+                    .then(success)
+                    .catch(error);
+            } else {
+                // @ts-ignore
+                cordova.plugins.Camera.playVideo(options, success, error);
+            }
+        } else {
+            // @ts-ignore
+            navigator.camera.playVideo(success, error, options);
+        }
+    }
 }
 
 export const Instance = new OSCameraPlugin();

@@ -28,26 +28,82 @@ class OSCameraPlugin {
     if (checkIfPWA(error)) {
       return;
     }
-    if (isUnifiedPluginDefined()) ;
-    else {
-      navigator.camera.takePicture(success, error, options);
+    if (isUnifiedPluginDefined()) {
+      let directionInteger = options.cameraDirection;
+      if (directionInteger == 1) {
+        options.cameraDirection = "FRONT";
+      } else {
+        options.cameraDirection = "REAR";
+      }
+      if (isCapacitorPluginDefined()) {
+        window.CapacitorPlugins.Camera.takePhoto(options).then(success).catch(error);
+      } else {
+        cordova.plugins.Camera.takePhoto(options, success, error);
+      }
+    } else {
+      let correctedLegacyOptions = options;
+      correctedLegacyOptions.saveToPhotoAlbum = options.saveToGallery;
+      if (typeof Camera !== "undefined") {
+        correctedLegacyOptions.destinationType = Camera.DestinationType.DATA_URL;
+        correctedLegacyOptions.source = Camera.PictureSourceType.CAMERA;
+      }
+      navigator.camera.takePicture(success, error, correctedLegacyOptions);
     }
   }
   chooseFromGallery(success, error, options) {
     if (checkIfPWA(error)) {
       return;
     }
-    if (isUnifiedPluginDefined()) ;
-    else {
-      navigator.camera.chooseFromGallery(success, error, options);
+    let successCallbackWithMapping = (output) => {
+      if (typeof output === "string") {
+        let processedOutput = output;
+        try {
+          processedOutput = JSON.parse(output);
+          alert("processedOutput: " + output);
+          if (Array.isArray(processedOutput)) {
+            success(output);
+          } else {
+            if (processedOutput.results && Array.isArray(processedOutput.results)) {
+              const unifiedOutput = JSON.stringify(processedOutput.results);
+              success(unifiedOutput);
+            } else {
+              success(output);
+            }
+          }
+        } catch (e) {
+          success(output);
+        }
+      } else {
+        success(output);
+      }
+    };
+    if (isUnifiedPluginDefined()) {
+      if (isCapacitorPluginDefined()) {
+        window.CapacitorPlugins.Camera.chooseFromGallery(options).then(successCallbackWithMapping).catch(error);
+      } else {
+        cordova.plugins.Camera.chooseFromGallery(options, successCallbackWithMapping, error);
+      }
+    } else {
+      navigator.camera.chooseFromGallery(successCallbackWithMapping, error, options);
     }
   }
   editPhoto(success, error, input) {
     if (checkIfPWA(error)) {
       return;
     }
-    if (isUnifiedPluginDefined()) ;
-    else {
+    if (isUnifiedPluginDefined()) {
+      let unifiedSuccessCallback = (result) => {
+        success(result.outputImage);
+      };
+      let options = {
+        inputImage: input.image
+      };
+      if (isCapacitorPluginDefined()) {
+        window.CapacitorPlugins.Camera.editPhoto(options).then(unifiedSuccessCallback).catch(error);
+      } else {
+        cordova.plugins.Camera.editPhoto(options, unifiedSuccessCallback, error);
+      }
+    } else {
       navigator.camera.editPicture(success, error, input);
     }
   }
@@ -55,26 +111,45 @@ class OSCameraPlugin {
     if (checkIfPWA(error)) {
       return;
     }
-    if (isUnifiedPluginDefined()) ;
-    else {
-      navigator.camera.editURIPicture(success, error, options);
+    if (isUnifiedPluginDefined()) {
+      if (isCapacitorPluginDefined()) {
+        window.CapacitorPlugins.Camera.editURIPhoto(options).then(success).catch(error);
+      } else {
+        cordova.plugins.Camera.editURIPhoto(options, success, error);
+      }
+    } else {
+      let correctedLegacyOptions = options;
+      correctedLegacyOptions.saveToPhotoAlbum = options.saveToGallery;
+      navigator.camera.editURIPicture(success, error, correctedLegacyOptions);
     }
   }
   recordVideo(success, error, options) {
     if (checkIfPWA(error)) {
       return;
     }
-    if (isUnifiedPluginDefined()) ;
-    else {
-      navigator.camera.recordVideo(success, error, options);
+    if (isUnifiedPluginDefined()) {
+      if (isCapacitorPluginDefined()) {
+        window.CapacitorPlugins.Camera.recordVideo(options).then(success).catch(error);
+      } else {
+        cordova.plugins.Camera.recordVideo(options, success, error);
+      }
+    } else {
+      let correctedLegacyOptions = options;
+      correctedLegacyOptions.saveToPhotoAlbum = options.saveToGallery;
+      navigator.camera.recordVideo(success, error, correctedLegacyOptions);
     }
   }
   playVideo(success, error, options) {
     if (checkIfPWA(error)) {
       return;
     }
-    if (isUnifiedPluginDefined()) ;
-    else {
+    if (isUnifiedPluginDefined()) {
+      if (isCapacitorPluginDefined()) {
+        window.CapacitorPlugins.Camera.playVideo(options).then(success).catch(error);
+      } else {
+        cordova.plugins.Camera.playVideo(options, success, error);
+      }
+    } else {
       navigator.camera.playVideo(success, error, options);
     }
   }
