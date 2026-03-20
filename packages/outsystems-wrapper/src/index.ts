@@ -7,7 +7,17 @@ import {
   RecordVideoOptions,
   TakePhotoOptions
 } from "../../cordova-plugin/src/definitions";
-import { checkIfPWA, isUnifiedPluginDefined } from "./helpers";
+import { checkIfPWA, isUnifiedPluginDefined, isCapacitorPluginDefined } from "./helpers";
+
+/**
+ * TODO for legacy clobber
+ * 
+ * saveToGallery -> use saveToPhotoAlbum on legacy.
+ * targetWidth and targetHeight -> make sure those work
+ *     destinationType: Camera.DestinationType.DATA_URL, 
+ *    sourceType : Camera.PictureSourceType.CAMERA,
+ * confirm media result array still is returned correctly for chooseFromGallery 
+ */
 
 class OSCameraPlugin {
 
@@ -21,10 +31,29 @@ class OSCameraPlugin {
     }
 
     if (isUnifiedPluginDefined()) {
-      // TODO call unified wrapper
+      let directionInteger: any = options.cameraDirection as any;
+      if (directionInteger == 1) {
+        options.cameraDirection = 'FRONT';
+      } else {
+        options.cameraDirection = 'REAR';
+      }
+      if (isCapacitorPluginDefined()) {
+        
+      } else {
+        
+      }
     } else {
+      let correctedLegacyOptions: any = options;
+      correctedLegacyOptions.saveToPhotoAlbum = options.saveToGallery;
       // @ts-ignore
-      navigator.camera.takePicture(success, error, options);
+      if (typeof(Camera) !== "undefined") {
+        // @ts-ignore
+        correctedLegacyOptions.destinationType = Camera.DestinationType.DATA_URL;
+        // @ts-ignore
+        correctedLegacyOptions.source = Camera.PictureSourceType.CAMERA;
+      }
+      // @ts-ignore
+      navigator.camera.takePicture(success, error, correctedLegacyOptions);
     }
   }
 
@@ -74,8 +103,10 @@ class OSCameraPlugin {
     if (isUnifiedPluginDefined()) {
       // TODO call unified wrapper
     } else {
+      let correctedLegacyOptions: any = options;
+      correctedLegacyOptions.saveToPhotoAlbum = options.saveToGallery;
       // @ts-ignore
-      navigator.camera.editURIPicture(success, error, options);
+      navigator.camera.editURIPicture(success, error, correctedLegacyOptions);
     }
   }
 
@@ -91,8 +122,10 @@ class OSCameraPlugin {
     if (isUnifiedPluginDefined()) {
       // TODO call unified wrapper
     } else {
+      let correctedLegacyOptions: any = options;
+      correctedLegacyOptions.saveToPhotoAlbum = options.saveToGallery;
       // @ts-ignore
-      navigator.camera.recordVideo(success, error, options);
+      navigator.camera.recordVideo(success, error, correctedLegacyOptions);
     }
   }
 

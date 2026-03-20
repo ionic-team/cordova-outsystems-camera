@@ -30,9 +30,22 @@ class OSCameraPlugin {
     if (checkIfPWA(error)) {
       return;
     }
-    if (isUnifiedPluginDefined()) ;
-    else {
-      navigator.camera.takePicture(success, error, options);
+    if (isUnifiedPluginDefined()) {
+      let directionInteger = options.cameraDirection;
+      if (directionInteger == 1) {
+        options.cameraDirection = "FRONT";
+      } else {
+        options.cameraDirection = "REAR";
+      }
+      if (isCapacitorPluginDefined()) ;
+    } else {
+      let correctedLegacyOptions = options;
+      correctedLegacyOptions.saveToPhotoAlbum = options.saveToGallery;
+      if (typeof Camera !== "undefined") {
+        correctedLegacyOptions.destinationType = Camera.DestinationType.DATA_URL;
+        correctedLegacyOptions.source = Camera.PictureSourceType.CAMERA;
+      }
+      navigator.camera.takePicture(success, error, correctedLegacyOptions);
     }
   }
   chooseFromGallery(success, error, options) {
@@ -59,7 +72,9 @@ class OSCameraPlugin {
     }
     if (isUnifiedPluginDefined()) ;
     else {
-      navigator.camera.editURIPicture(success, error, options);
+      let correctedLegacyOptions = options;
+      correctedLegacyOptions.saveToPhotoAlbum = options.saveToGallery;
+      navigator.camera.editURIPicture(success, error, correctedLegacyOptions);
     }
   }
   recordVideo(success, error, options) {
@@ -68,7 +83,9 @@ class OSCameraPlugin {
     }
     if (isUnifiedPluginDefined()) ;
     else {
-      navigator.camera.recordVideo(success, error, options);
+      let correctedLegacyOptions = options;
+      correctedLegacyOptions.saveToPhotoAlbum = options.saveToGallery;
+      navigator.camera.recordVideo(success, error, correctedLegacyOptions);
     }
   }
   playVideo(success, error, options) {

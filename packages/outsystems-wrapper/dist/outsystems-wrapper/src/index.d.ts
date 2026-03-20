@@ -1,4 +1,13 @@
 import { GalleryOptions, MediaResult, PhotoEditOptions, PlayVideoOptions, PluginError, RecordVideoOptions, TakePhotoOptions } from '../../cordova-plugin/src/definitions';
+/**
+ * TODO for legacy clobber
+ *
+ * saveToGallery -> use saveToPhotoAlbum on legacy.
+ * targetWidth and targetHeight -> make sure those work
+ *     destinationType: Camera.DestinationType.DATA_URL,
+ *    sourceType : Camera.PictureSourceType.CAMERA,
+ * confirm media result array still is returned correctly for chooseFromGallery
+ */
 declare class OSCameraPlugin {
     takePhoto(success: (result: MediaResult) => void, error: (err: PluginError) => void, options: TakePhotoOptions): void;
     chooseFromGallery(success: (result: MediaResult[]) => void, error: (err: PluginError) => void, options: GalleryOptions): void;
