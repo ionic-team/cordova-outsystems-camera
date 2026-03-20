@@ -27,8 +27,7 @@ class OSCameraPlugin: CDVPlugin {
         self.callbackId = command.callbackId
 
         guard
-            let parameters: OSCAMRTakePhotoParameters = decodeParameters(from: command),
-            let options = try? IONCAMRTakePhotoOptions(from: parameters)
+            let options: IONCAMRTakePhotoOptions = decodeParameters(from: command)
         else {
             return self.callback(error: .takePictureArguments)
         }
@@ -43,18 +42,13 @@ class OSCameraPlugin: CDVPlugin {
     func chooseFromGallery(command: CDVInvokedUrlCommand) {
         self.callbackId = command.callbackId
         
-        guard let parameters: IONCAMRGalleryOptions = decodeParameters(from: command) else {
+        guard let options: IONCAMRGalleryOptions = decodeParameters(from: command) else {
             return self.callback(error: .chooseMultimediaIssue)
         }
                 
         self.commandDelegate.run { [weak self] in
             guard let self = self else { return }
-            self.galleryManager?.chooseMultimedia(
-                type: parameters.mediaType,
-                allowMultipleSelection: parameters.allowMultipleSelection,
-                returnMetadata: parameters.returnMetadata,
-                allowEdit: parameters.allowEdit
-            )
+            self.galleryManager?.chooseFromGallery(with: options)
         }
     }
     
@@ -95,10 +89,9 @@ class OSCameraPlugin: CDVPlugin {
     func recordVideo(command: CDVInvokedUrlCommand) {
         self.callbackId = command.callbackId
         
-        guard let parameters: OSCAMRRecordVideoParameters = decodeParameters(from: command) else {
+        guard let options: IONCAMRRecordVideoOptions = decodeParameters(from: command) else {
             return self.callback(error: .captureVideoIssue)
         }
-        let options = IONCAMRRecordVideoOptions(from: parameters)
         
         self.commandDelegate.run { [weak self] in
             guard let self = self else { return }
@@ -110,7 +103,7 @@ class OSCameraPlugin: CDVPlugin {
     func playVideo(command: CDVInvokedUrlCommand) {
         self.callbackId = command.callbackId
         
-        guard let parameters: OSCAMRPlayVideoParameters = decodeParameters(from: command) else {
+        guard let parameters: IONCAMRPlayVideoParameters = decodeParameters(from: command) else {
             return self.callback(error: .playVideoIssue)
         }
         
