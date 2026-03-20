@@ -63,7 +63,6 @@
           let processedOutput = output;
           try {
             processedOutput = JSON.parse(output);
-            alert("processedOutput: " + output);
             if (Array.isArray(processedOutput)) {
               success(output);
             } else {

@@ -76,7 +76,6 @@ class OSCameraPlugin {
                 let processedOutput: any = output;
                 try {
                     processedOutput = JSON.parse(output);
-                    alert("processedOutput: " + output);
                     // check if processedOutput is an array, if not, assume it's an object with a results field that contains the array
                     if (Array.isArray(processedOutput)) {
                         // output should already be a Media Result array, no processing required
