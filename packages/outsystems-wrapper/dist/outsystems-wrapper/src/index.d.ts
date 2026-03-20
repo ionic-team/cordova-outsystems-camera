@@ -1,4 +1,4 @@
-import { GalleryOptions, MediaResult, PhotoEditOptions, PlayVideoOptions, PluginError, RecordVideoOptions, TakePhotoOptions } from '../../cordova-plugin/src/definitions';
+import { GalleryOptions, MediaResult, EditURIPhotoOptions, PlayVideoOptions, PluginError, RecordVideoOptions, TakePhotoOptions } from '../../cordova-plugin/src/definitions';
 /**
  * TODO for legacy clobber
  *
@@ -14,7 +14,7 @@ declare class OSCameraPlugin {
     editPhoto(success: (imageData: any) => void, error: (err: PluginError) => void, input: {
         image: string;
     }): void;
-    editURIPhoto(success: (result: MediaResult) => void, error: (err: PluginError) => void, options: PhotoEditOptions): void;
+    editURIPhoto(success: (result: MediaResult) => void, error: (err: PluginError) => void, options: EditURIPhotoOptions): void;
     recordVideo(success: (result: MediaResult) => void, error: (err: PluginError) => void, options: RecordVideoOptions): void;
     playVideo(success: () => void, error: (err: PluginError) => void, options: PlayVideoOptions): void;
 }

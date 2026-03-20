@@ -79,12 +79,12 @@ export interface TakePhotoOptions {
      */
     allowEdit?: boolean;
     /**
-     * The encoding type of the returned image file. Default is 'jpeg'.
+     * The encoding type for the captured photo - JPEG or PNG.
      *
-     * @default 'jpeg'
+     * @default EncodingType.JPEG
      * @since 1.0.0
      */
-    encodingType?: 'jpeg' | 'png';
+    encodingType?: EncodingType;
     /**
      * The width to scale the image to, in pixels. Must be used with targetHeight. Aspect ratio remains constant.
      * @since 1.0.0
@@ -113,6 +113,13 @@ export interface TakePhotoOptions {
      * @since 1.0.0
      */
     saveToGallery?: boolean;
+    /**
+     * Whether or not MediaResult should include its metadata.
+     * If an error occurs when obtaining the metadata, it will return empty.
+     * @default false
+     * @since 1.0.0
+     */
+    includeMetadata?: boolean;
 }
 export interface GalleryOptions {
     /**
@@ -121,11 +128,20 @@ export interface GalleryOptions {
      */
     mediaType?: 'photo' | 'video' | 'all';
     /**
-      * Whether to allow the user to select multiple media files from the gallery. Default is false (only single selection allowed).
-      * @default false
-      * @since 1.0.0
-      */
+     * Whether to allow the user to select multiple media files from the gallery. Default is false (only single selection allowed).
+     * @default false
+     * @since 1.0.0
+     */
     allowMultipleSelection?: boolean;
+    /**
+     * Maximum number of photos the user will be able to choose.
+     * Note: This option is only supported on Android 13+ and iOS.
+     *
+     * @default 0 (unlimited)
+     *
+     * @since 1.2.0
+     */
+    limit?: number;
     /**
      * Whether to include metadata in the MediaResult object for each selected media file. Default is true.
      * If false, the metadata property in MediaResult will be null or undefined, and only the result (file URI, base64 string, or data URI) will be returned.
@@ -133,8 +149,13 @@ export interface GalleryOptions {
      * @since 1.0.0
      */
     includeMetadata?: boolean;
+    /**
+     * Whether to allow the user to crop or make small edits (platform specific).
+     * @since 1.0.0
+     */
+    allowEdit?: boolean;
 }
-export interface PhotoEditOptions {
+export interface EditURIPhotoOptions {
     /**
      * The URI of the photo to edit. This is a string that represents the location of the photo on the device, which can be used to access or display the photo content.
      * @since 1.0.0
@@ -153,6 +174,22 @@ export interface PhotoEditOptions {
      */
     includeMetadata?: boolean;
 }
+export interface EditPhotoOptions {
+    /**
+     * The base64 encoded image to edit.
+     *
+     * @since 8.1.0
+     */
+    inputImage: string;
+}
+export interface EditPhotoResult {
+    /**
+     * The edited image, base64 encoded.
+     *
+     * @since 8.1.0
+     */
+    outputImage: string;
+}
 export interface RecordVideoOptions {
     /**
      * Whether to save the recorded video to the gallery. Default is false.
@@ -166,6 +203,12 @@ export interface RecordVideoOptions {
      * @since 1.0.0
      */
     includeMetadata?: boolean;
+    /**
+     * Whether to save the recorded the video persistently (even if not saved in the gallery). Default is true.
+     * @default true
+     * @since 1.0.0
+     */
+    isPersistent?: boolean;
 }
 export interface PlayVideoOptions {
     /**
@@ -190,6 +233,10 @@ export interface PluginError {
      * @since 1.0.0
      */
     exception?: string;
+}
+export declare enum EncodingType {
+    JPEG = 0,
+    PNG = 1
 }
 /**
  * Only available in Native Android and iOS; not available for Web / PWAs.
@@ -229,7 +276,14 @@ export interface ICamera {
      * @returns A promise that resolves with the edited photo's details.
      * @since 1.0.0
      */
-    editPhoto(options: PhotoEditOptions): Promise<MediaResult>;
+    editURIPhoto(options: EditURIPhotoOptions): Promise<MediaResult>;
+    /**
+     * Opens the photo editor to allow the user to edit a photo.
+     * @param options Contains the photo to edit.
+     * @returns A promise that resolves with the edited photo.
+     * @since 1.0.0
+     */
+    editPhoto(options: EditPhotoOptions): Promise<EditPhotoResult>;
     /**
      * Records a video using the device's camera.
      * @param options Options to customize the video recording process.

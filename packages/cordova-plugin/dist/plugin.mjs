@@ -15,6 +15,9 @@ function chooseFromLimitedGallery(options, success, error) {
 function editPhoto(options, success, error) {
   exec(success, error, "OSCameraPlugin", "editPhoto", [options]);
 }
+function editURIPhoto(options, success, error) {
+  exec(success, error, "OSCameraPlugin", "editURIPhoto", [options]);
+}
 function recordVideo(options, success, error) {
   exec(success, error, "OSCameraPlugin", "recordVideo", [options]);
 }
@@ -27,6 +30,15 @@ module.exports = {
   pickLimitedGallery,
   chooseFromLimitedGallery,
   editPhoto,
+  editURIPhoto,
   recordVideo,
   playVideo
+};
+var EncodingType = /* @__PURE__ */ ((EncodingType2) => {
+  EncodingType2[EncodingType2["JPEG"] = 0] = "JPEG";
+  EncodingType2[EncodingType2["PNG"] = 1] = "PNG";
+  return EncodingType2;
+})(EncodingType || {});
+export {
+  EncodingType
 };

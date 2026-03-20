@@ -1,5 +1,5 @@
 import { require } from 'cordova';
-import { GalleryOptions, MediaResult, PhotoEditOptions, PlayVideoOptions, PluginError, RecordVideoOptions, TakePhotoOptions } from './definitions';
+import { GalleryOptions, MediaResult, EditPhotoOptions, EditURIPhotoOptions, EditPhotoResult, PlayVideoOptions, PluginError, RecordVideoOptions, TakePhotoOptions } from './definitions';
 
 const exec = require('cordova/exec');
 
@@ -19,8 +19,12 @@ function chooseFromLimitedGallery(options: GalleryOptions, success: (output: Med
     exec(success, error, 'OSCameraPlugin', 'chooseFromLimitedGallery', [options ]);
 }
 
-function editPhoto(options: PhotoEditOptions, success: (output: MediaResult) => void, error: (error: PluginError) => void): void {
+function editPhoto(options: EditPhotoOptions, success: (output: EditPhotoResult) => void, error: (error: PluginError) => void): void {
   exec(success, error, 'OSCameraPlugin', 'editPhoto', [options]);
+}
+
+function editURIPhoto(options: EditURIPhotoOptions, success: (output: MediaResult) => void, error: (error: PluginError) => void): void {
+  exec(success, error, 'OSCameraPlugin', 'editURIPhoto', [options]);
 }
 
 function recordVideo(options: RecordVideoOptions, success: (output: MediaResult) => void, error: (error: PluginError) => void): void {
@@ -37,6 +41,7 @@ module.exports = {
     pickLimitedGallery,
     chooseFromLimitedGallery,
     editPhoto,
+    editURIPhoto,
     recordVideo,
     playVideo
 };

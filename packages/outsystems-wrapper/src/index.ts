@@ -1,7 +1,7 @@
 import {
   GalleryOptions,
   MediaResult,
-  PhotoEditOptions,
+  EditURIPhotoOptions,
   PlayVideoOptions,
   PluginError,
   RecordVideoOptions,
@@ -94,7 +94,7 @@ class OSCameraPlugin {
   editURIPhoto(
     success: (result: MediaResult) => void,
     error: (err: PluginError) => void,
-    options: PhotoEditOptions
+    options: EditURIPhotoOptions
   ): void {
     if (checkIfPWA(error)) {
       return;  // PWA implementation is outside this wrapper's scope
