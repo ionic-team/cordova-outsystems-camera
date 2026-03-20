@@ -1,6 +1,6 @@
 import { GalleryOptions, MediaResult, EditURIPhotoOptions, PlayVideoOptions, PluginError, RecordVideoOptions, TakePhotoOptions } from '../../cordova-plugin/src/definitions';
 /**
- * TODO for legacy clobber
+ * TODO for legacy clobber - test again once outsystems-wrapper has been finalized and tested on new Cordova / capacitor Plugin
  *
  * saveToGallery -> use saveToPhotoAlbum on legacy.
  * targetWidth and targetHeight -> make sure those work
@@ -10,7 +10,7 @@ import { GalleryOptions, MediaResult, EditURIPhotoOptions, PlayVideoOptions, Plu
  */
 declare class OSCameraPlugin {
     takePhoto(success: (result: MediaResult) => void, error: (err: PluginError) => void, options: TakePhotoOptions): void;
-    chooseFromGallery(success: (result: MediaResult[]) => void, error: (err: PluginError) => void, options: GalleryOptions): void;
+    chooseFromGallery(success: (result: any) => void, error: (err: PluginError) => void, options: GalleryOptions): void;
     editPhoto(success: (imageData: any) => void, error: (err: PluginError) => void, input: {
         image: string;
     }): void;

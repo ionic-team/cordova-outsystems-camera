@@ -5,12 +5,14 @@ import {
     PlayVideoOptions,
     PluginError,
     RecordVideoOptions,
-    TakePhotoOptions
+    TakePhotoOptions,
+    EditPhotoOptions,
+    EditPhotoResult
 } from "../../cordova-plugin/src/definitions";
 import { checkIfPWA, isUnifiedPluginDefined, isCapacitorPluginDefined } from "./helpers";
 
 /**
- * TODO for legacy clobber
+ * TODO for legacy clobber - test again once outsystems-wrapper has been finalized and tested on new Cordova / capacitor Plugin
  * 
  * saveToGallery -> use saveToPhotoAlbum on legacy.
  * targetWidth and targetHeight -> make sure those work
@@ -38,9 +40,13 @@ class OSCameraPlugin {
                 options.cameraDirection = 'REAR';
             }
             if (isCapacitorPluginDefined()) {
-                
+                // @ts-ignore
+                window.CapacitorPlugins.Camera.takePhoto(options)
+                    .then(success)
+                    .catch(error);
             } else {
-
+                // @ts-ignore
+                cordova.plugins.Camera.takePhoto(options, success, error);
             }
         } else {
             let correctedLegacyOptions: any = options;
@@ -58,19 +64,53 @@ class OSCameraPlugin {
     }
 
     chooseFromGallery(
-        success: (result: MediaResult[]) => void,
+        success: (result: any) => void,
         error: (err: PluginError) => void,
         options: GalleryOptions
     ): void {
         if (checkIfPWA(error)) {
             return;  // PWA implementation is outside this wrapper's scope
         }
+        let successCallbackWithMapping = (output: any) => {
+            if (typeof output === "string") {
+                let processedOutput: any = output;
+                try {
+                    processedOutput = JSON.parse(output);
+                    alert("processedOutput: " + output);
+                    // check if processedOutput is an array, if not, assume it's an object with a results field that contains the array
+                    if (Array.isArray(processedOutput)) {
+                        // output should already be a Media Result array, no processing required
+                        success(output);
+                    } else {
+                        // for unified plugins, the MediaResult array comes inside an object
+                        if (processedOutput.results && Array.isArray(processedOutput.results)) {
+                            const unifiedOutput = JSON.stringify(processedOutput.results);
+                            success(unifiedOutput);
+                        } else {
+                            success(output); // edge-case - not expected to land here unless output is miscontructed from native
+                        }
+                    }
+                } catch (e) {
+                    success(output); // edge-case - not expected to land here unless output is miscontructed from native
+                }
+            } else {
+                success(output);  // edge-case - not expected to land here unless output is miscontructed from native
+            }
+        }
 
         if (isUnifiedPluginDefined()) {
-            // TODO call unified wrapper
+            if (isCapacitorPluginDefined()) {
+                // @ts-ignore
+                window.CapacitorPlugins.Camera.chooseFromGallery(options)
+                    .then(successCallbackWithMapping)
+                    .catch(error);
+            } else {
+                // @ts-ignore
+                cordova.plugins.Camera.chooseFromGallery(options, successCallbackWithMapping, error);
+            }
         } else {
             // @ts-ignore
-            navigator.camera.chooseFromGallery(success, error, options);
+            navigator.camera.chooseFromGallery(successCallbackWithMapping, error, options);
         }
     }
 
@@ -84,7 +124,21 @@ class OSCameraPlugin {
         }
 
         if (isUnifiedPluginDefined()) {
-            // TODO call unified wrapper
+            let unifiedSuccessCallback = (result: EditPhotoResult) => {
+                success(result.outputImage);
+            }
+            let options: EditPhotoOptions = {
+                inputImage: input.image
+            }
+            if (isCapacitorPluginDefined()) {
+                // @ts-ignore
+                window.CapacitorPlugins.Camera.editPhoto(options)
+                    .then(unifiedSuccessCallback)
+                    .catch(error);
+            } else {
+                // @ts-ignore
+                cordova.plugins.Camera.editPhoto(options, unifiedSuccessCallback, error);
+            }
         } else {
             // @ts-ignore
             navigator.camera.editPicture(success, error, input);
@@ -101,7 +155,15 @@ class OSCameraPlugin {
         }
 
         if (isUnifiedPluginDefined()) {
-            // TODO call unified wrapper
+            if (isCapacitorPluginDefined()) {
+                // @ts-ignore
+                window.CapacitorPlugins.Camera.editURIPhoto(options)
+                    .then(success)
+                    .catch(error);
+            } else {
+                // @ts-ignore
+                cordova.plugins.Camera.editURIPhoto(options, success, error);
+            }
         } else {
             let correctedLegacyOptions: any = options;
             correctedLegacyOptions.saveToPhotoAlbum = options.saveToGallery;
@@ -120,7 +182,15 @@ class OSCameraPlugin {
         }
 
         if (isUnifiedPluginDefined()) {
-            // TODO call unified wrapper
+            if (isCapacitorPluginDefined()) {
+                // @ts-ignore
+                window.CapacitorPlugins.Camera.recordVideo(options)
+                    .then(success)
+                    .catch(error);
+            } else {
+                // @ts-ignore
+                cordova.plugins.Camera.recordVideo(options, success, error);
+            }
         } else {
             let correctedLegacyOptions: any = options;
             correctedLegacyOptions.saveToPhotoAlbum = options.saveToGallery;
@@ -139,7 +209,15 @@ class OSCameraPlugin {
         }
 
         if (isUnifiedPluginDefined()) {
-            // TODO call unified wrapper
+            if (isCapacitorPluginDefined()) {
+                // @ts-ignore
+                window.CapacitorPlugins.Camera.playVideo(options)
+                    .then(success)
+                    .catch(error);
+            } else {
+                // @ts-ignore
+                cordova.plugins.Camera.playVideo(options, success, error);
+            }
         } else {
             // @ts-ignore
             navigator.camera.playVideo(success, error, options);
