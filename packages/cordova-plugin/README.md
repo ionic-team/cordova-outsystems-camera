@@ -236,7 +236,7 @@ Enables basic storage and retrieval of dates and times.
 | **`encodingType`**       | <code>'jpeg' \| 'png'</code>   | The encoding type of the returned image file. Default is 'jpeg'.                                           | <code>'jpeg'</code> | 1.0.0 |
 | **`targetWidth`**        | <code>number</code>            | The width to scale the image to, in pixels. Must be used with targetHeight. Aspect ratio remains constant. |                     | 1.0.0 |
 | **`targetHeight`**       | <code>number</code>            | The height to scale the image to, in pixels. Must be used with targetWidth. Aspect ratio remains constant. |                     | 1.0.0 |
-| **`cameraDirection`**    | <code>'front' \| 'rear'</code> | The camera to use (front- or back-facing). Default is 'rear'.                                              | <code>'rear'</code> | 1.0.0 |
+| **`cameraDirection`**    | <code>'FRONT' \| 'REAR'</code> | The camera to use (front- or back-facing). Default is 'rear'.                                              | <code>'rear'</code> | 1.0.0 |
 | **`correctOrientation`** | <code>boolean</code>           | Whether to rotate the image to correct for the orientation of the device during capture. Default is false. | <code>false</code>  | 1.0.0 |
 | **`saveToGallery`**      | <code>boolean</code>           | Whether to save the image to the gallery on the device after capture. Default is false.                    | <code>false</code>  | 1.0.0 |
 

@@ -100,7 +100,7 @@ export interface TakePhotoOptions {
      * @default 'rear'
      * @since 1.0.0
      */
-    cameraDirection?: 'front' | 'rear';
+    cameraDirection?: 'FRONT' | 'REAR';
     /**
      * Whether to rotate the image to correct for the orientation of the device during capture. Default is false.
      * @default false
