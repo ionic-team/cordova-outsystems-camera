@@ -102,11 +102,7 @@
         </config-file>
 
         <source-file src="packages/cordova-plugin/ios/OSCameraPlugin.swift" />
-        <source-file src="packages/cordova-plugin/ios/OSCAMRChooseGalleryParameters.swift" />
-        <source-file src="packages/cordova-plugin/ios/OSCAMREditPictureParameters.swift" />
-        <source-file src="packages/cordova-plugin/ios/OSCAMRPlayVideoParameters.swift" />
-        <source-file src="packages/cordova-plugin/ios/OSCAMRRecordVideoParameters.swift" />
-        <source-file src="packages/cordova-plugin/ios/OSCAMRTakePictureParameters.swift" />
+        <source-file src="packages/cordova-plugin/ios/IONCAMRPlayVideoParameters.swift" />
 
         <podspec>
             <pods use-frameworks="true">

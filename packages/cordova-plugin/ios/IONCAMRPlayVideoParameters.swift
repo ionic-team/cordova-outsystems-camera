@@ -1,11 +1,11 @@
 import Foundation
 import IONCameraLib
 
-struct OSCAMRPlayVideoParameters {
+struct IONCAMRPlayVideoParameters {
     let url: URL
 }
 
-extension OSCAMRPlayVideoParameters: Decodable {
+extension IONCAMRPlayVideoParameters: Decodable {
     enum DecodeError: Error {
         case invalidURL
     }
