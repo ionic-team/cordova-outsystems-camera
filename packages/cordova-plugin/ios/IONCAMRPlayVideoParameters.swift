@@ -11,12 +11,12 @@ extension IONCAMRPlayVideoParameters: Decodable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case url = "videoURI"
+        case uri
     }
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let urlString = try container.decode(String.self, forKey: .url)
+        let urlString = try container.decode(String.self, forKey: .uri)
         
         guard let url = URL(string: urlString) else { throw DecodeError.invalidURL }
         self.init(url: url)
