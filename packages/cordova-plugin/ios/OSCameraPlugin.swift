@@ -43,13 +43,18 @@ class OSCameraPlugin: CDVPlugin {
     func chooseFromGallery(command: CDVInvokedUrlCommand) {
         self.callbackId = command.callbackId
         
-        guard let parameters: OSCAMRChooseFromGalleryParameters = decodeParameters(from: command) else {
+        guard let parameters: IONCAMRGalleryOptions = decodeParameters(from: command) else {
             return self.callback(error: .chooseMultimediaIssue)
         }
                 
         self.commandDelegate.run { [weak self] in
             guard let self = self else { return }
-            self.galleryManager?.chooseMultimedia(parameters.mediaType, parameters.allowMultipleSelection, parameters.includeMetadata, and: parameters.allowEdit)
+            self.galleryManager?.chooseMultimedia(
+                type: parameters.mediaType,
+                allowMultipleSelection: parameters.allowMultipleSelection,
+                returnMetadata: parameters.returnMetadata,
+                allowEdit: parameters.allowEdit
+            )
         }
     }
     
@@ -57,19 +62,18 @@ class OSCameraPlugin: CDVPlugin {
     func editURIPhoto(command: CDVInvokedUrlCommand) {
         self.callbackId = command.callbackId
         
-        guard let parameters: OSCAMREditPhotoParameters = decodeParameters(from: command) else {
+        guard let options: IONCAMRPhotoEditOptions = decodeParameters(from: command) else {
             return self.callback(error: .editPictureIssue)
         }
-        let options = IONCAMREditOptions(from: parameters)
         
         self.commandDelegate.run { [weak self] in
             guard let self = self else { return }
-            self.editManager?.editPhoto(from: parameters.uri, with: options)
+            self.editManager?.editPhoto(with: options)
         }
     }
 
-    @objc(editPicture:)
-    func editPicture(command: CDVInvokedUrlCommand) {
+    @objc(editPhoto:)
+    func editPhoto(command: CDVInvokedUrlCommand) {
         self.callbackId = command.callbackId
         
         guard
@@ -83,7 +87,7 @@ class OSCameraPlugin: CDVPlugin {
         
         self.commandDelegate.run { [weak self] in
             guard let self = self else { return }
-            self.editManager?.editPicture(image)
+            self.editManager?.editPhoto(image)
         }
     }
     

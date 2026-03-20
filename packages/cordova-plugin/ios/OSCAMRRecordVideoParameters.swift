@@ -3,7 +3,7 @@ import IONCameraLib
 struct OSCAMRRecordVideoParameters: Decodable {
     let saveToGallery: Bool
     let includeMetadata: Bool
-    let isPersistent: Bool = true
+    let isPersistent: Bool
 }
 
 extension IONCAMRRecordVideoOptions {
