@@ -714,7 +714,7 @@ class OSCameraPlugin : CordovaPlugin() {
      */
     private fun callPlayVideo(args: JSONArray) {
         try {
-            val videoUri = args.getJSONObject(0).getString(VIDEO_URI)
+            val videoUri = args.getJSONObject(0).getString(URI)
             videoManager?.playVideo(cordova.activity, videoUri, {
                 sendSuccessfulResult("")
             }, {
@@ -890,7 +890,6 @@ class OSCameraPlugin : CordovaPlugin() {
 
         private const val STORE = "CameraStore"
         private const val EDIT_FILE_NAME_KEY = "EditFileName"
-        private const val VIDEO_URI = "videoURI"
         private const val SAVE_TO_GALLERY = "saveToGallery"
         private const val INCLUDE_METADATA = "includeMetadata"
         private const val IS_PERSISTENT = "isPersistent"
