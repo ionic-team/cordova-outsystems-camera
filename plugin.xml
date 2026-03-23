@@ -28,18 +28,6 @@
             <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
         </config-file>
 
-        <edit-config target="AndroidManifest.xml" parent="application">
-            <provider
-                android:name="org.apache.cordova.camera.FileProvider"
-                android:authorities="${applicationId}.camera.provider"
-                android:exported="false"
-                android:grantUriPermissions="true">
-                <meta-data
-                    android:name="android.support.FILE_PROVIDER_PATHS"
-                    android:resource="@xml/camera_provider_paths" />
-            </provider>
-        </edit-config>
-
         <edit-config target="AndroidManifest.xml" parent="/*">
             <queries>
                 <intent>
@@ -54,11 +42,7 @@
             </queries>
         </edit-config>
 
-        <source-file src="packages/cordova-plugin/android/CameraLauncher.kt"
-            target-dir="app/src/main/kotlin/org/apache/cordova/camera" />
-        <source-file src="packages/cordova-plugin/android/FileProvider.java" target-dir="src/org/apache/cordova/camera" />
-
-        <source-file src="packages/cordova-plugin/android/xml/camera_provider_paths.xml" target-dir="res/xml" />
+        <source-file src="packages/cordova-plugin/android/CameraLauncher.kt" target-dir="app/src/main/kotlin/org/apache/cordova/camera" />
 
         <framework src="libs/android/build.gradle" custom="true" type="gradleReference" />
         <framework src="androidx.appcompat:appcompat:1.3.0" />
