@@ -96,8 +96,8 @@ export interface TakePhotoOptions {
      */
     targetHeight?: number;
     /**
-     * The camera to use (front- or back-facing). Default is 'rear'.
-     * @default 'rear'
+     * The camera to use (front- or back-facing). Default is 'REAR'.
+     * @default 'REAR'
      * @since 1.0.0
      */
     cameraDirection?: 'FRONT' | 'REAR';
