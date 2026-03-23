@@ -93,8 +93,8 @@ class CameraLauncher : CordovaPlugin() {
             = true // Should we save the recorded video persistently or not
     private var includeMetadata =
         false // Should we allow the app to obtain metadata about the media item
-    private var latestVersion =
-        false // Used to distinguish between the deprecated and latest version
+    private val latestVersion =
+        true // Used to distinguish between the deprecated and latest version
     private var editParameters = IONCAMREditParameters(
         editURI = "", fromUri = false, saveToGallery = false, includeMetadata = false
     )
@@ -226,12 +226,6 @@ class CameraLauncher : CordovaPlugin() {
         }
         if (targetHeight < 1) {
             targetHeight = -1
-        }
-
-        // We don't return full-quality PNG files. The camera outputs a JPEG
-        // so requesting it as a PNG provides no actual benefit
-        if (targetHeight == -1 && targetWidth == -1 && mQuality == 100 && !correctOrientation && encodingType == PNG) {
-            encodingType = JPEG
         }
 
         //create CameraParameters
