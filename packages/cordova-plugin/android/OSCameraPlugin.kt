@@ -471,7 +471,8 @@ class OSCameraPlugin : CordovaPlugin() {
     }
 
     private fun handleBase64(base64: String) {
-        val pluginResult = PluginResult(PluginResult.Status.OK, base64)
+        val output = "{\"$EDIT_PHOTO_OUTPUT\": \"$base64\"}"
+        val pluginResult = PluginResult(PluginResult.Status.OK, output)
         this.callbackContext?.sendPluginResult(pluginResult)
         this.callbackContext = null
     }
@@ -590,8 +591,13 @@ class OSCameraPlugin : CordovaPlugin() {
             saveToGallery = false,
             includeMetadata = false
         )
-        val imageBase64 = args.getString(0)
-        editManager?.editImage(cordova.activity, imageBase64, editLauncher)
+        args.optJSONObject(0)?.optString(EDIT_PHOTO_INPUT).let { imageBase64 ->
+            if (imageBase64.isNullOrEmpty()) {
+                sendError(IONCAMRError.INVALID_ARGUMENT_ERROR)
+                return
+            }
+            editManager?.editImage(cordova.activity, imageBase64, editLauncher)
+        }
     }
 
     fun callEditUriImage(editParameters: IONCAMREditParameters) {
@@ -898,7 +904,7 @@ class OSCameraPlugin : CordovaPlugin() {
         private const val MEDIA_TYPE = "mediaType"
         private const val URI = "uri"
 
-        //take picture json
+        //take photo json
         private const val QUALITY = "quality"
         private const val WIDTH = "targetWidth"
         private const val HEIGHT = "targetHeight"
@@ -906,7 +912,10 @@ class OSCameraPlugin : CordovaPlugin() {
         private const val ALLOW_EDIT = "allowEdit"
         private const val CORRECT_ORIENTATION = "correctOrientation"
 
-        private const val CHOOSE_FROM_GALLERY_REQUEST_CODE = 869456849
+        //edit photo json
+        private const val EDIT_PHOTO_INPUT = "inputImage"
+        private const val EDIT_PHOTO_OUTPUT = "outputImage"
+
         private const val CHOOSE_FROM_GALLERY_PERMISSION_CODE = 869454849
 
         private fun createPermissionArray(): Array<String> {
