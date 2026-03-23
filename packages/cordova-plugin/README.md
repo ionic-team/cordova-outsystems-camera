@@ -21,6 +21,7 @@ cordova plugin add <path-to-repo-local-clone>
 * [`editURIPhoto(...)`](#edituriphoto)
 * [`editPhoto(...)`](#editphoto)
 * [`recordVideo(...)`](#recordvideo)
+* [`playVideo(...)`](#playvideo)
 * [Interfaces](#interfaces)
 * [Enums](#enums)
 
@@ -158,6 +159,23 @@ Records a video using the device's camera.
 | **`options`** | <code><a href="#recordvideooptions">RecordVideoOptions</a></code> | Options to customize the video recording process. |
 
 **Returns:** <code>Promise&lt;<a href="#mediaresult">MediaResult</a>&gt;</code>
+
+**Since:** 1.0.0
+
+--------------------
+
+
+### playVideo(...)
+
+```typescript
+playVideo(options: PlayVideoOptions) => Promise<void>
+```
+
+Open a native video player.
+
+| Param         | Type                                                          | Description                   |
+| ------------- | ------------------------------------------------------------- | ----------------------------- |
+| **`options`** | <code><a href="#playvideooptions">PlayVideoOptions</a></code> | Options for playing the video |
 
 **Since:** 1.0.0
 
@@ -304,6 +322,13 @@ Enables basic storage and retrieval of dates and times.
 | **`saveToGallery`**   | <code>boolean</code> | Whether to save the recorded video to the gallery. Default is false.                                     | <code>false</code> | 1.0.0 |
 | **`includeMetadata`** | <code>boolean</code> | Whether to include metadata in the <a href="#mediaresult">MediaResult</a>. Default is true.              | <code>true</code>  | 1.0.0 |
 | **`isPersistent`**    | <code>boolean</code> | Whether to save the recorded the video persistently (even if not saved in the gallery). Default is true. | <code>true</code>  | 1.0.0 |
+
+
+#### PlayVideoOptions
+
+| Prop      | Type                | Description                                                                                             | Since |
+| --------- | ------------------- | ------------------------------------------------------------------------------------------------------- | ----- |
+| **`url`** | <code>string</code> | The URL of the video to play. This is a string that represents the location of the video on the device. | 1.0.0 |
 
 
 ### Enums

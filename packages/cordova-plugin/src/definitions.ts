@@ -331,4 +331,12 @@ export interface ICamera {
      * @since 1.0.0
      */
     recordVideo(options: RecordVideoOptions): Promise<MediaResult>;
+
+    /**
+     * Open a native video player.
+     * @param options Options for playing the video
+     * @returns A promise that resolves if the video player was launched successfully.
+     * @since 1.0.0
+     */
+    playVideo(options: PlayVideoOptions): Promise<void>;
 }
