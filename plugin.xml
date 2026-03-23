@@ -86,7 +86,6 @@
         </config-file>
 
         <source-file src="packages/cordova-plugin/ios/OSCameraPlugin.swift" />
-        <source-file src="packages/cordova-plugin/ios/IONCAMRPlayVideoParameters.swift" />
 
         <podspec>
             <pods use-frameworks="true">
