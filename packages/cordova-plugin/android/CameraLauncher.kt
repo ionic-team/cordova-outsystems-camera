@@ -93,7 +93,7 @@ class CameraLauncher : CordovaPlugin() {
             = true // Should we save the recorded video persistently or not
     private var includeMetadata =
         false // Should we allow the app to obtain metadata about the media item
-    private var latestVersion =
+    private val latestVersion =
         true // Used to distinguish between the deprecated and latest version
     private var editParameters = IONCAMREditParameters(
         editURI = "", fromUri = false, saveToGallery = false, includeMetadata = false
