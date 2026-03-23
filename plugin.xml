@@ -46,6 +46,7 @@
         <source-file src="packages/cordova-plugin/android/OSCameraPlugin.kt" target-dir="app/src/main/kotlin/org/com/outsystems/plugins/camera" />
 
         <framework src="packages/cordova-plugin/libs/android/build.gradle" custom="true" type="gradleReference" />
+        <lib-file src="packages/cordova-plugin/libs/android/IONCameraLib-debug.aar" />
         
     </platform>
 
@@ -86,8 +87,7 @@
 
         <podspec>
             <pods use-frameworks="true">
-                <pod name="IONCameraLib" path="/Users/andre.destro/workspace/ionic-team/ion-ios-camera/" />
-            </pods>
+            <pod name="IONCameraLib" path="/Users/pedrobilro/Desktop/client_projects/outsystems/source_codes/cordova_plugins_ios/ion-ios-camera" />            </pods>
         </podspec>
     </platform>
 
