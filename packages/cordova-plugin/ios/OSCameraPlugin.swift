@@ -103,7 +103,7 @@ class OSCameraPlugin: CDVPlugin {
     func playVideo(command: CDVInvokedUrlCommand) {
         self.callbackId = command.callbackId
         
-        guard let parameters: IONCAMRPlayVideoParameters = decodeParameters(from: command) else {
+        guard let parameters: IONCAMRPlayVideoOptions = decodeParameters(from: command) else {
             return self.callback(error: .playVideoIssue)
         }
         
@@ -147,23 +147,53 @@ class OSCameraPlugin: CDVPlugin {
 }
 
 extension OSCameraPlugin: IONCAMRCallbackDelegate {
-    func callback(result: String?, error: IONCAMRError?) {
-        if let error = error as? NSError {
-            self.sendResult(error: error, callBackID: self.callbackId)
-        } else if let result = result {
-            self.sendResult(result: result, callBackID: self.callbackId)
+    
+    func callback(result: IONCAMRMediaResult) {
+        do {
+            let treated = try treatSingle(result)
+            self.sendResult(result: treated, callBackID: self.callbackId)
+        } catch let error as IONCAMRError {
+            self.callback(error: error)
+        } catch {
+            self.callback(error: .generalIssue)
+        }
+    }
+    
+    func callback(result: [IONCAMRMediaResult]) {
+        do {
+            let treated = try treatMultiple(result)
+            self.sendResult(result: treated, callBackID: self.callbackId)
+        } catch let error as IONCAMRError {
+            self.callback(error: error)
+        } catch {
+            self.callback(error: .generalIssue)
         }
     }
     
     func callback(error: IONCAMRError) {
-        self.callback(result: nil, error: error)
-    }
-    
-    func callback(_ result: String) {
-        self.callback(result: result, error: nil)
+        self.sendResult(error: error as NSError, callBackID: self.callbackId)
     }
 
     func callbackSuccess() {
-        self.callback("")
+        self.sendResult(result: "", callBackID: self.callbackId)
+    }
+    
+    private func encodeToStructure<T>(_ value: T) throws -> String where T: Encodable {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        guard let mediaResultData = try? encoder.encode(value), let mediaResultText = String(data: mediaResultData, encoding: .utf8)
+        else { throw IONCAMRError.invalidEncodeResultMedia }
+        return mediaResultText
+    }
+
+    private func treatSingle(_ value: IONCAMRMediaResult) throws -> String {
+        if case .picture = value.type, value.uri.isEmpty {
+            return value.thumbnail
+        }
+        return try self.encodeToStructure(value)
+    }
+
+    private func treatMultiple(_ value: [IONCAMRMediaResult]) throws -> String {
+        try self.encodeToStructure(["results": value])
     }
 }
