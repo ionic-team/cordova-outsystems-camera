@@ -124,7 +124,20 @@ class OSCameraPlugin {
 
         if (isUnifiedPluginDefined()) {
             let unifiedSuccessCallback = (result: EditPhotoResult) => {
-                success(result.outputImage);
+                if (typeof result === "string") {
+                    try {
+                        const processedResult: any = JSON.parse(result);
+                        if (processedResult.outputImage) {
+                            success(processedResult.outputImage);
+                        } else {
+                            success(result); // edge-case - not expected to land here unless output is miscontructed from native
+                        }
+                    } catch (e) {
+                        success(result);// edge-case - not expected to land here unless output is miscontructed from native
+                    }
+                } else {
+                    success(result.outputImage); // edge-case - not expected to land here unless output is miscontructed from native
+                }
             }
             let options: EditPhotoOptions = {
                 inputImage: input.image

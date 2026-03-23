@@ -94,7 +94,20 @@ class OSCameraPlugin {
     }
     if (isUnifiedPluginDefined()) {
       let unifiedSuccessCallback = (result) => {
-        success(result.outputImage);
+        if (typeof result === "string") {
+          try {
+            const processedResult = JSON.parse(result);
+            if (processedResult.outputImage) {
+              success(processedResult.outputImage);
+            } else {
+              success(result);
+            }
+          } catch (e) {
+            success(result);
+          }
+        } else {
+          success(result.outputImage);
+        }
       };
       let options = {
         inputImage: input.image

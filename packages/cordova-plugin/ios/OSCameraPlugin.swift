@@ -69,16 +69,17 @@ class OSCameraPlugin: CDVPlugin {
     @objc(editPhoto:)
     func editPhoto(command: CDVInvokedUrlCommand) {
         self.callbackId = command.callbackId
-        
+
         guard
-            let imageBase64 = command.argument(at: 0) as? String,
+            let dict = command.argument(at: 0) as? [String: Any],
+            let imageBase64 = dict["inputImage"] as? String,
             let imageData = Data(base64Encoded: imageBase64),
             let image = UIImage(data: imageData)
         else {
             self.callback(error: .invalidImageData)
             return
         }
-        
+
         self.commandDelegate.run { [weak self] in
             guard let self = self else { return }
             self.editManager?.editPhoto(image)
@@ -188,7 +189,7 @@ extension OSCameraPlugin: IONCAMRCallbackDelegate {
 
     private func treatSingle(_ value: IONCAMRMediaResult) throws -> String {
         if case .picture = value.type, value.uri.isEmpty {
-            return value.thumbnail
+            return try self.encodeToStructure(["outputImage": value.thumbnail])
         }
         return try self.encodeToStructure(value)
     }
