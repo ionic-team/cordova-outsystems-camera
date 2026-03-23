@@ -69,6 +69,7 @@ export interface MediaResult {
 export interface TakePhotoOptions {
     /**
      * The quality of image to return as JPEG, from 0-100. Default is 50.
+     * Not applicable for EncodingType.PNG.
      * @default 50
      * @since 1.0.0
      */
