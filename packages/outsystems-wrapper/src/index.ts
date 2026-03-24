@@ -51,6 +51,7 @@ class OSCameraPlugin {
         } else {
             let correctedLegacyOptions: any = options;
             correctedLegacyOptions.saveToPhotoAlbum = options.saveToGallery;
+            correctedLegacyOptions.latestVersion = true;
             // @ts-ignore
             if (typeof (Camera) !== "undefined") {
                 // @ts-ignore

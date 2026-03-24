@@ -47,6 +47,7 @@
       } else {
         let correctedLegacyOptions = options;
         correctedLegacyOptions.saveToPhotoAlbum = options.saveToGallery;
+        correctedLegacyOptions.latestVersion = true;
         if (typeof Camera !== "undefined") {
           correctedLegacyOptions.destinationType = Camera.DestinationType.DATA_URL;
           correctedLegacyOptions.source = Camera.PictureSourceType.CAMERA;
