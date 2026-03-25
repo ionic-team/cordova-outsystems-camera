@@ -81,7 +81,9 @@ class OSCameraPlugin : CordovaPlugin() {
     private var editManager: IONCAMREditManager? = null
     private var camParameters: IONCAMRCameraParameters? = null
     private var videoParameters: IONCAMRVideoParameters? = null
-    private var editParameters: IONCAMREditParameters? = null
+    private var editParameters = IONCAMREditParameters(
+        editURI = "", fromUri = false, saveToGallery = false, includeMetadata = false
+    )
     private var galleryMediaType: IONCAMRMediaType = IONCAMRMediaType.ALL
     private var galleryAllowMultipleSelection: Boolean = false
     private var galleryAllowEdit: Boolean = false
@@ -167,7 +169,7 @@ class OSCameraPlugin : CordovaPlugin() {
                     args.getJSONObject(0).getBoolean(SAVE_TO_GALLERY),
                     args.getJSONObject(0).getBoolean(INCLUDE_METADATA)
                 )
-                callEditUriImage(editParameters!!)
+                callEditUriImage(editParameters)
             }
             "recordVideo" -> {
                 videoParameters = IONCAMRVideoParameters(
@@ -751,7 +753,7 @@ class OSCameraPlugin : CordovaPlugin() {
             TAKE_PHO_SEC -> cameraManager?.takePhoto(this.cordova.activity, encodingType, cameraLauncher)
             CAPTURE_VIDEO_SEC -> videoParameters?.let { callCaptureVideo(it) }
             CHOOSE_FROM_GALLERY_PERMISSION_CODE -> callChooseFromGallery()
-            EDIT_PICTURE_SEC -> editParameters?.let { callEditUriImage(it) }
+            EDIT_PICTURE_SEC -> callEditUriImage(editParameters)
         }
     }
 
