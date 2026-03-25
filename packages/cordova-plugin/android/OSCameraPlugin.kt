@@ -73,8 +73,6 @@ class OSCameraPlugin : CordovaPlugin() {
             = true // Should we save the recorded video persistently or not
     private var includeMetadata =
         false // Should we allow the app to obtain metadata about the media item
-    private val latestVersion =
-        true // Used to distinguish between the deprecated and latest version
     private var editParameters = IONCAMREditParameters(
         editURI = "", fromUri = false, saveToGallery = false, includeMetadata = false
     )
@@ -218,8 +216,7 @@ class OSCameraPlugin : CordovaPlugin() {
             allowEdit,
             correctOrientation,
             saveToGallery,
-            includeMetadata,
-            latestVersion
+            includeMetadata
         )
 
         try {
@@ -432,13 +429,10 @@ class OSCameraPlugin : CordovaPlugin() {
 
             camParameters?.let { params ->
                 manager.processResultFromCamera(
-                    cordova.activity, try {
-                        result.data
-                    } catch (e: Exception) {
-                        TODO("Not yet implemented")
-                    }, params, {
-                        handleBase64(it)
-                    }, { mediaResult ->
+                    cordova.activity,
+                    result.data,
+                    params,
+                    { mediaResult ->
                         handleMediaResult(mediaResult)
                     }, {
                         sendError(it)
