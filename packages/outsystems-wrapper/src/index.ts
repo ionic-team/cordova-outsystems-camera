@@ -11,16 +11,6 @@ import {
 } from "../../cordova-plugin/src/definitions";
 import { checkIfPWA, isUnifiedPluginDefined, isCapacitorPluginDefined } from "./helpers";
 
-/**
- * TODO for legacy clobber - test again once outsystems-wrapper has been finalized and tested on new Cordova / capacitor Plugin
- * 
- * saveToGallery -> use saveToPhotoAlbum on legacy.
- * targetWidth and targetHeight -> make sure those work
- *     destinationType: Camera.DestinationType.DATA_URL, 
- *    sourceType : Camera.PictureSourceType.CAMERA,
- * confirm media result array still is returned correctly for chooseFromGallery 
- */
-
 class OSCameraPlugin {
 
     takePhoto(
