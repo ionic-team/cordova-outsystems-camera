@@ -24,10 +24,11 @@ import io.ionic.libs.ioncameralib.helper.IONCAMRExifHelper
 import io.ionic.libs.ioncameralib.helper.IONCAMRFileHelper
 import io.ionic.libs.ioncameralib.helper.IONCAMRImageHelper
 import io.ionic.libs.ioncameralib.helper.IONCAMRMediaHelper
-import io.ionic.libs.ioncameralib.model.IONCAMREditParameters
 import io.ionic.libs.ioncameralib.model.IONCAMRError
 import io.ionic.libs.ioncameralib.model.IONCAMRMediaType
 import io.ionic.libs.ioncameralib.model.IONCAMRCameraParameters
+import io.ionic.libs.ioncameralib.model.IONCAMRVideoParameters
+import io.ionic.libs.ioncameralib.model.IONCAMREditParameters
 import io.ionic.libs.ioncameralib.model.IONCAMRMediaResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -67,15 +68,8 @@ class OSCameraPlugin : CordovaPlugin() {
             = false
     private var allowEdit // Should we allow the user to crop the image.
             = false
-    private var saveVideoToGallery =
-        false // Should we allow the user to save the video in the gallery
-    private var isPersistent
-            = true // Should we save the recorded video persistently or not
     private var includeMetadata =
         false // Should we allow the app to obtain metadata about the media item
-    private var editParameters = IONCAMREditParameters(
-        editURI = "", fromUri = false, saveToGallery = false, includeMetadata = false
-    )
     var callbackContext: CallbackContext? = null
     private var numPics = 0
     private var croppedUri: Uri? = null
@@ -86,6 +80,8 @@ class OSCameraPlugin : CordovaPlugin() {
     private var galleryManager: IONCAMRGalleryManager? = null
     private var editManager: IONCAMREditManager? = null
     private var camParameters: IONCAMRCameraParameters? = null
+    private var videoParameters: IONCAMRVideoParameters? = null
+    private var editParameters: IONCAMREditParameters? = null
     private var galleryMediaType: IONCAMRMediaType = IONCAMRMediaType.ALL
     private var galleryAllowMultipleSelection: Boolean = false
     private var galleryAllowEdit: Boolean = false
@@ -171,13 +167,15 @@ class OSCameraPlugin : CordovaPlugin() {
                     args.getJSONObject(0).getBoolean(SAVE_TO_GALLERY),
                     args.getJSONObject(0).getBoolean(INCLUDE_METADATA)
                 )
-                callEditUriImage(editParameters)
+                callEditUriImage(editParameters!!)
             }
             "recordVideo" -> {
-                saveVideoToGallery = args.getJSONObject(0).getBoolean(SAVE_TO_GALLERY)
-                includeMetadata = args.getJSONObject(0).getBoolean(INCLUDE_METADATA)
-                isPersistent = args.getJSONObject(0).optBoolean(IS_PERSISTENT, true)
-                callCaptureVideo(saveVideoToGallery)
+                videoParameters = IONCAMRVideoParameters(
+                    args.getJSONObject(0).getBoolean(SAVE_TO_GALLERY),
+                    args.getJSONObject(0).getBoolean(INCLUDE_METADATA),
+                    args.getJSONObject(0).optBoolean(IS_PERSISTENT, true)
+                )
+                callCaptureVideo(videoParameters!!)
             }
             "playVideo" -> callPlayVideo(args)
             else -> return false
@@ -492,9 +490,9 @@ class OSCameraPlugin : CordovaPlugin() {
             cameraManager?.processResultFromVideo(
                 cordova.activity,
                 uri,
-                saveVideoToGallery,
-                isPersistent,
-                includeMetadata,
+                videoParameters?.saveToGallery ?: false,
+                videoParameters?.isPersistent ?: true,
+                videoParameters?.includeMetadata ?: false,
                 { mediaResult ->
                     val gson = GsonBuilder().create()
                     val resultJson = gson.toJson(mediaResult)
@@ -625,7 +623,7 @@ class OSCameraPlugin : CordovaPlugin() {
         }
     }
 
-    fun callCaptureVideo(saveVideoToGallery: Boolean) {
+    fun callCaptureVideo(videoParameters: IONCAMRVideoParameters) {
 
         val cameraPermissionNeeded = !PermissionHelper.hasPermission(
             this, Manifest.permission.CAMERA
@@ -633,7 +631,7 @@ class OSCameraPlugin : CordovaPlugin() {
 
         // we don't want to ask for these permissions from Android 11 onwards
         val galleryPermissionNeeded =
-            Build.VERSION.SDK_INT < 30 && saveVideoToGallery && !(PermissionHelper.hasPermission(
+            Build.VERSION.SDK_INT < 30 && videoParameters.saveToGallery && !(PermissionHelper.hasPermission(
                 this, Manifest.permission.READ_EXTERNAL_STORAGE
             ) && PermissionHelper.hasPermission(
                 this, Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -657,7 +655,7 @@ class OSCameraPlugin : CordovaPlugin() {
             return
         }
 
-        cameraManager?.recordVideo(cordova.activity, saveVideoToGallery, videoLauncher) {
+        cameraManager?.recordVideo(cordova.activity, videoParameters.saveToGallery, videoLauncher) {
             sendError(it)
         }
     }
@@ -751,9 +749,9 @@ class OSCameraPlugin : CordovaPlugin() {
         }
         when (requestCode) {
             TAKE_PHO_SEC -> cameraManager?.takePhoto(this.cordova.activity, encodingType, cameraLauncher)
-            CAPTURE_VIDEO_SEC -> callCaptureVideo(saveVideoToGallery)
+            CAPTURE_VIDEO_SEC -> videoParameters?.let { callCaptureVideo(it) }
             CHOOSE_FROM_GALLERY_PERMISSION_CODE -> callChooseFromGallery()
-            EDIT_PICTURE_SEC -> callEditUriImage(editParameters)
+            EDIT_PICTURE_SEC -> editParameters?.let { callEditUriImage(it) }
         }
     }
 
