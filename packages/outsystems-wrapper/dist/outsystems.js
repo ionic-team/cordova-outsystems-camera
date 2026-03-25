@@ -40,7 +40,14 @@
           options.cameraDirection = "REAR";
         }
         if (isCapacitorPluginDefined()) {
-          window.CapacitorPlugins.Camera.takePhoto(options).then(success).catch(error);
+          const capacitorSuccessCallback = (result) => {
+            if (typeof result === "string") {
+              success(result);
+            } else {
+              success(JSON.stringify(result));
+            }
+          };
+          window.CapacitorPlugins.Camera.takePhoto(options).then(capacitorSuccessCallback).catch(error);
         } else {
           cordova.plugins.Camera.takePhoto(options, success, error);
         }
@@ -78,7 +85,12 @@
             success(output);
           }
         } else {
-          success(output);
+          if (typeof output.results !== "undefined" && Array.isArray(output.results)) {
+            const unifiedOutput = JSON.stringify(output.results);
+            success(unifiedOutput);
+          } else {
+            success(output);
+          }
         }
       };
       if (isUnifiedPluginDefined()) {
@@ -130,7 +142,14 @@
       }
       if (isUnifiedPluginDefined()) {
         if (isCapacitorPluginDefined()) {
-          window.CapacitorPlugins.Camera.editURIPhoto(options).then(success).catch(error);
+          const capacitorSuccessCallback = (result) => {
+            if (typeof result === "string") {
+              success(result);
+            } else {
+              success(JSON.stringify(result));
+            }
+          };
+          window.CapacitorPlugins.Camera.editURIPhoto(options).then(capacitorSuccessCallback).catch(error);
         } else {
           cordova.plugins.Camera.editURIPhoto(options, success, error);
         }
@@ -146,7 +165,14 @@
       }
       if (isUnifiedPluginDefined()) {
         if (isCapacitorPluginDefined()) {
-          window.CapacitorPlugins.Camera.recordVideo(options).then(success).catch(error);
+          const capacitorSuccessCallback = (result) => {
+            if (typeof result === "string") {
+              success(result);
+            } else {
+              success(JSON.stringify(result));
+            }
+          };
+          window.CapacitorPlugins.Camera.recordVideo(options).then(capacitorSuccessCallback).catch(error);
         } else {
           cordova.plugins.Camera.recordVideo(options, success, error);
         }

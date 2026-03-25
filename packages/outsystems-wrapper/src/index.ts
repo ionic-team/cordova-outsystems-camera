@@ -14,7 +14,7 @@ import { checkIfPWA, isUnifiedPluginDefined, isCapacitorPluginDefined } from "./
 class OSCameraPlugin {
 
     takePhoto(
-        success: (result: MediaResult) => void,
+        success: (result: string) => void,
         error: (err: PluginError) => void,
         options: TakePhotoOptions
     ): void {
@@ -30,9 +30,17 @@ class OSCameraPlugin {
                 options.cameraDirection = 'REAR';
             }
             if (isCapacitorPluginDefined()) {
+                const capacitorSuccessCallback = (result: MediaResult) => {
+                    if (typeof(result) === "string") {
+                        success(result);
+                    } else {
+                        // OutSystems wrapper expected a JSON-encoded string
+                        success(JSON.stringify(result));
+                    }
+                }
                 // @ts-ignore
                 window.CapacitorPlugins.Camera.takePhoto(options)
-                    .then(success)
+                    .then(capacitorSuccessCallback)
                     .catch(error);
             } else {
                 // @ts-ignore
@@ -55,7 +63,7 @@ class OSCameraPlugin {
     }
 
     chooseFromGallery(
-        success: (result: any) => void,
+        success: (result: string) => void,
         error: (err: PluginError) => void,
         options: GalleryOptions
     ): void {
@@ -72,7 +80,7 @@ class OSCameraPlugin {
                         // output should already be a Media Result array, no processing required
                         success(output);
                     } else {
-                        // for unified plugins, the MediaResult array comes inside an object
+                        // for unified Cordova plugin, the MediaResult array comes inside an object
                         if (processedOutput.results && Array.isArray(processedOutput.results)) {
                             const unifiedOutput = JSON.stringify(processedOutput.results);
                             success(unifiedOutput);
@@ -84,7 +92,13 @@ class OSCameraPlugin {
                     success(output); // edge-case - not expected to land here unless output is miscontructed from native
                 }
             } else {
-                success(output);  // edge-case - not expected to land here unless output is miscontructed from native
+                if (typeof(output.results) !== "undefined" && Array.isArray(output.results)) {
+                    // Capacitor should return an object, which we will JSON-encode
+                    const unifiedOutput = JSON.stringify(output.results);
+                    success(unifiedOutput);
+                } else {
+                    success(output); // edge-case - not expected to land here unless output is miscontructed from native
+                }
             }
         }
 
@@ -105,7 +119,7 @@ class OSCameraPlugin {
     }
 
     editPhoto(
-        success: (imageData: any) => void,
+        success: (imageData: string) => void,
         error: (err: PluginError) => void,
         input: { image: string }
     ): void {
@@ -116,6 +130,7 @@ class OSCameraPlugin {
         if (isUnifiedPluginDefined()) {
             let unifiedSuccessCallback = (result: EditPhotoResult) => {
                 if (typeof result === "string") {
+                    // Cordova
                     try {
                         const processedResult: any = JSON.parse(result);
                         if (processedResult.outputImage) {
@@ -127,7 +142,7 @@ class OSCameraPlugin {
                         success(result);// edge-case - not expected to land here unless output is miscontructed from native
                     }
                 } else {
-                    success(result.outputImage); // edge-case - not expected to land here unless output is miscontructed from native
+                    success(result.outputImage); // should enter here for Capacitor
                 }
             }
             let options: EditPhotoOptions = {
@@ -149,7 +164,7 @@ class OSCameraPlugin {
     }
 
     editURIPhoto(
-        success: (result: MediaResult) => void,
+        success: (result: string) => void,
         error: (err: PluginError) => void,
         options: EditURIPhotoOptions
     ): void {
@@ -159,9 +174,17 @@ class OSCameraPlugin {
 
         if (isUnifiedPluginDefined()) {
             if (isCapacitorPluginDefined()) {
+                const capacitorSuccessCallback = (result: MediaResult) => {
+                    if (typeof(result) === "string") {
+                        success(result);
+                    } else {
+                        // OutSystems wrapper expected a JSON-encoded string
+                        success(JSON.stringify(result));
+                    }
+                }
                 // @ts-ignore
                 window.CapacitorPlugins.Camera.editURIPhoto(options)
-                    .then(success)
+                    .then(capacitorSuccessCallback)
                     .catch(error);
             } else {
                 // @ts-ignore
@@ -176,7 +199,7 @@ class OSCameraPlugin {
     }
 
     recordVideo(
-        success: (result: MediaResult) => void,
+        success: (result: string) => void,
         error: (err: PluginError) => void,
         options: RecordVideoOptions
     ): void {
@@ -186,9 +209,17 @@ class OSCameraPlugin {
 
         if (isUnifiedPluginDefined()) {
             if (isCapacitorPluginDefined()) {
+                const capacitorSuccessCallback = (result: MediaResult) => {
+                    if (typeof(result) === "string") {
+                        success(result);
+                    } else {
+                        // OutSystems wrapper expected a JSON-encoded string
+                        success(JSON.stringify(result));
+                    }
+                }
                 // @ts-ignore
                 window.CapacitorPlugins.Camera.recordVideo(options)
-                    .then(success)
+                    .then(capacitorSuccessCallback)
                     .catch(error);
             } else {
                 // @ts-ignore

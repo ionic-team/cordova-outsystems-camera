@@ -1,12 +1,12 @@
-import { GalleryOptions, MediaResult, EditURIPhotoOptions, PlayVideoOptions, PluginError, RecordVideoOptions, TakePhotoOptions } from '../../cordova-plugin/src/definitions';
+import { GalleryOptions, EditURIPhotoOptions, PlayVideoOptions, PluginError, RecordVideoOptions, TakePhotoOptions } from '../../cordova-plugin/src/definitions';
 declare class OSCameraPlugin {
-    takePhoto(success: (result: MediaResult) => void, error: (err: PluginError) => void, options: TakePhotoOptions): void;
-    chooseFromGallery(success: (result: any) => void, error: (err: PluginError) => void, options: GalleryOptions): void;
-    editPhoto(success: (imageData: any) => void, error: (err: PluginError) => void, input: {
+    takePhoto(success: (result: string) => void, error: (err: PluginError) => void, options: TakePhotoOptions): void;
+    chooseFromGallery(success: (result: string) => void, error: (err: PluginError) => void, options: GalleryOptions): void;
+    editPhoto(success: (imageData: string) => void, error: (err: PluginError) => void, input: {
         image: string;
     }): void;
-    editURIPhoto(success: (result: MediaResult) => void, error: (err: PluginError) => void, options: EditURIPhotoOptions): void;
-    recordVideo(success: (result: MediaResult) => void, error: (err: PluginError) => void, options: RecordVideoOptions): void;
+    editURIPhoto(success: (result: string) => void, error: (err: PluginError) => void, options: EditURIPhotoOptions): void;
+    recordVideo(success: (result: string) => void, error: (err: PluginError) => void, options: RecordVideoOptions): void;
     playVideo(success: () => void, error: (err: PluginError) => void, options: PlayVideoOptions): void;
 }
 export declare const Instance: OSCameraPlugin;
