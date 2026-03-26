@@ -166,18 +166,20 @@ class OSCameraPlugin : CordovaPlugin() {
                 editParameters = IONCAMREditParameters(
                     args.getJSONObject(0).getString(URI),
                     true,
-                    args.getJSONObject(0).getBoolean(SAVE_TO_GALLERY),
-                    args.getJSONObject(0).getBoolean(INCLUDE_METADATA)
+                    args.getJSONObject(0).optBoolean(SAVE_TO_GALLERY, false),
+                    args.getJSONObject(0).optBoolean(INCLUDE_METADATA, false)
                 )
                 callEditUriImage(editParameters)
             }
             "recordVideo" -> {
-                videoParameters = IONCAMRVideoParameters(
-                    args.getJSONObject(0).getBoolean(SAVE_TO_GALLERY),
-                    args.getJSONObject(0).getBoolean(INCLUDE_METADATA),
+                IONCAMRVideoParameters(
+                    args.getJSONObject(0).optBoolean(SAVE_TO_GALLERY, false),
+                    args.getJSONObject(0).optBoolean(INCLUDE_METADATA, false),
                     args.getJSONObject(0).optBoolean(IS_PERSISTENT, true)
-                )
-                callCaptureVideo(videoParameters!!)
+                ).let { params ->
+                    videoParameters = params
+                    callCaptureVideo(params)
+                }
             }
             "playVideo" -> callPlayVideo(args)
             else -> return false
