@@ -9,7 +9,7 @@ export function checkIfPWA(error: (err: PluginError) => void): boolean {
   let isPWA = !isCapacitorPluginDefined() && !isAnyCordovaPluginDefined();
   if (isPWA) {
     error({
-      code: "OS-PLUG-CAMR-0028",
+      code: "OS-PLUG-CAMR-0025",
       message: "Cordova / Capacitor is not available."
     });
   }
