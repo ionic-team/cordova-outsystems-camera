@@ -315,7 +315,7 @@ class OSCameraPlugin : CordovaPlugin() {
     private fun handleCameraCropResult(result: ActivityResult) {
         when (result.resultCode) {
             Activity.RESULT_OK -> processResult(result)
-            Activity.RESULT_CANCELED -> sendError(IONCAMRError.EDIT_OPERATION_CANCELLED_ERROR)
+            Activity.RESULT_CANCELED -> sendError(IONCAMRError.EDIT_CANCELLED_ERROR)
             else -> sendError(IONCAMRError.EDIT_IMAGE_ERROR)
         }
     }
@@ -323,7 +323,7 @@ class OSCameraPlugin : CordovaPlugin() {
     private fun handleEditResult(result: ActivityResult) {
         when (result.resultCode) {
             Activity.RESULT_OK -> processResultFromEdit(result)
-            Activity.RESULT_CANCELED -> sendError(IONCAMRError.EDIT_OPERATION_CANCELLED_ERROR)
+            Activity.RESULT_CANCELED -> sendError(IONCAMRError.EDIT_CANCELLED_ERROR)
             else -> sendError(IONCAMRError.EDIT_IMAGE_ERROR)
         }
     }
@@ -396,7 +396,7 @@ class OSCameraPlugin : CordovaPlugin() {
                 }
             }
 
-            Activity.RESULT_CANCELED -> sendError(IONCAMRError.EDIT_OPERATION_CANCELLED_ERROR)
+            Activity.RESULT_CANCELED -> sendError(IONCAMRError.EDIT_CANCELLED_ERROR)
             else -> sendError(IONCAMRError.EDIT_IMAGE_ERROR)
         }
     }
