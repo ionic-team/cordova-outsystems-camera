@@ -85,8 +85,12 @@
         <source-file src="packages/cordova-plugin/ios/OSCameraPlugin.swift" />
 
         <podspec>
+            <config>
+                <source url="https://cdn.cocoapods.org/"/>
+            </config>
             <pods use-frameworks="true">
-            <pod name="IONCameraLib" path="/Users/pedrobilro/Desktop/client_projects/outsystems/source_codes/cordova_plugins_ios/ion-ios-camera" />            </pods>
+                <pod name="IONCameraLib" spec="0.1.0" />
+            </pods>
         </podspec>
     </platform>
 
