@@ -196,7 +196,7 @@ class OSCameraPlugin : CordovaPlugin() {
         correctOrientation = parameters.getBoolean(CORRECT_ORIENTATION)
         encodingType = parameters.getInt(ENCODING_TYPE)
         saveToGallery = parameters.getBoolean(SAVE_TO_GALLERY)
-        allowEdit = parameters.getBoolean(ALLOW_EDIT)
+        allowEdit = EditableOption.fromString(parameters.optString(EDITABLE, null)) == EditableOption.IN_APP
         includeMetadata = parameters.optBoolean(INCLUDE_METADATA, false)
 
         // If the user specifies a 0 or smaller width/height
@@ -676,7 +676,7 @@ class OSCameraPlugin : CordovaPlugin() {
             galleryAllowMultipleSelection = parameters.getBoolean(ALLOW_MULTIPLE)
             galleryLimit = parameters.optInt(GALLERY_LIMIT, 0)
             galleryIncludeMetadata = parameters.getBoolean(INCLUDE_METADATA)
-            galleryAllowEdit = parameters.getBoolean(ALLOW_EDIT)
+            galleryAllowEdit = EditableOption.fromString(parameters.optString(EDITABLE, null)) == EditableOption.IN_APP
         } catch (_: Exception) {
             sendError(IONCAMRError.GENERIC_CHOOSE_MULTIMEDIA_ERROR)
             return
@@ -861,6 +861,25 @@ class OSCameraPlugin : CordovaPlugin() {
         return false
     }
 
+    /**
+     * Enum representing the editable parameter values for photo/video editing.
+     */
+    enum class EditableOption(val value: String) {
+        IN_APP("in-app"),
+        NO("no");
+
+        companion object {
+            /**
+             * Converts a string value to an EditableOption, case-insensitive.
+             * Returns NO as default if the value doesn't match any option.
+             */
+            fun fromString(value: String?): EditableOption {
+                if (value == null) return NO
+                return values().find { it.value.equals(value, ignoreCase = true) } ?: NO
+            }
+        }
+    }
+
     companion object {
         private const val FILE_URI =
             1 // Return file uri (content://media/external/images/media/2 for Android)
@@ -905,7 +924,7 @@ class OSCameraPlugin : CordovaPlugin() {
         private const val WIDTH = "targetWidth"
         private const val HEIGHT = "targetHeight"
         private const val ENCODING_TYPE = "encodingType"
-        private const val ALLOW_EDIT = "allowEdit"
+        private const val EDITABLE = "editable"
         private const val CORRECT_ORIENTATION = "correctOrientation"
 
         //edit photo json
