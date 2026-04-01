@@ -82,12 +82,15 @@ export interface TakePhotoOptions {
      * @since 1.0.0
      */
     quality?: number;
- 
+
     /**
-     * Whether to allow the user to crop or make small edits (platform specific).
+     * Whether to allow the user to edit the photo after capture.
+     * - 'in-app': Enable in-app editing (plugin's built-in editor)
+     * - 'no': Disable editing (default)
+     * @default 'no'
      * @since 1.0.0
      */
-    allowEdit?: boolean;
+    editable?: 'in-app' | 'no';
 
     /**
      * The encoding type for the captured photo - JPEG or PNG.
@@ -173,10 +176,13 @@ export interface GalleryOptions {
     includeMetadata?: boolean; // whether to include metadata in the MediaResult (default: true)
 
     /**
-     * Whether to allow the user to crop or make small edits (platform specific).
+     * Whether to allow the user to edit selected media.
+     * - 'in-app': Enable in-app editing (platform's built-in editor)
+     * - 'no': Disable editing (default)
+     * @default 'no'
      * @since 1.0.0
      */
-    allowEdit?: boolean;
+    editable?: 'in-app' | 'no';
     
 }
 
