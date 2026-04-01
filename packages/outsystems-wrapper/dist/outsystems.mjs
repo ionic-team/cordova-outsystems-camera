@@ -35,6 +35,12 @@ class OSCameraPlugin {
       } else {
         options.cameraDirection = "REAR";
       }
+      let allowEdit = options.editable;
+      if (typeof allowEdit !== "undefined" && allowEdit) {
+        options.editable = "in-app";
+      } else {
+        options.editable = "no";
+      }
       if (isCapacitorPluginDefined()) {
         const capacitorSuccessCallback = (result) => {
           if (typeof result === "string") {
@@ -90,6 +96,12 @@ class OSCameraPlugin {
       }
     };
     if (isUnifiedPluginDefined()) {
+      let allowEdit = options.editable;
+      if (typeof allowEdit !== "undefined" && allowEdit) {
+        options.editable = "in-app";
+      } else {
+        options.editable = "no";
+      }
       if (isCapacitorPluginDefined()) {
         window.CapacitorPlugins.Camera.chooseFromGallery(options).then(successCallbackWithMapping).catch(error);
       } else {
