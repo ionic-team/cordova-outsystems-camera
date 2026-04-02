@@ -587,13 +587,14 @@ class OSCameraPlugin : CordovaPlugin() {
             saveToGallery = false,
             includeMetadata = false
         )
-        args.optJSONObject(0)?.optString(EDIT_PHOTO_INPUT).let { imageBase64 ->
-            if (imageBase64.isNullOrEmpty()) {
-                sendError(IONCAMRError.INVALID_ARGUMENT_ERROR)
-                return
-            }
-            editManager?.editImage(cordova.activity, imageBase64, editLauncher)
+        val jsonObj = args.optJSONObject(0)
+        val imageBase64 = if (jsonObj == null || jsonObj.isNull(EDIT_PHOTO_INPUT)) null
+                          else jsonObj.optString(EDIT_PHOTO_INPUT)
+        if (imageBase64.isNullOrEmpty()) {
+            sendError(IONCAMRError.INVALID_ARGUMENT_ERROR)
+            return
         }
+        editManager?.editImage(cordova.activity, imageBase64, editLauncher)
     }
 
     fun callEditUriImage(editParameters: IONCAMREditParameters) {
