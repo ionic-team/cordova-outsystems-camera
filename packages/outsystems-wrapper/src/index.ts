@@ -29,7 +29,7 @@ class OSCameraPlugin {
             } else {
                 options.cameraDirection = 'REAR';
             }
-            let allowEdit: any = options.editable as any;
+            let allowEdit: any = (options as any)?.allowEdit as any;
             if (typeof(allowEdit) !== 'undefined' && allowEdit) {
                 options.editable = 'in-app';
             } else {
@@ -109,7 +109,7 @@ class OSCameraPlugin {
         }
 
         if (isUnifiedPluginDefined()) {
-            let allowEdit: any = options.editable as any;
+            let allowEdit: any = (options as any)?.allowEdit as any;
             if (typeof(allowEdit) !== 'undefined' && allowEdit) {
                 options.editable = 'in-app';
             } else {
