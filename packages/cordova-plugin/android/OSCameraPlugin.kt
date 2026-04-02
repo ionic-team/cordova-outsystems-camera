@@ -196,7 +196,7 @@ class OSCameraPlugin : CordovaPlugin() {
         correctOrientation = parameters.getBoolean(CORRECT_ORIENTATION)
         encodingType = parameters.getInt(ENCODING_TYPE)
         saveToGallery = parameters.getBoolean(SAVE_TO_GALLERY)
-        allowEdit = EditableOption.fromString(parameters.optString(EDITABLE, null)) == EditableOption.IN_APP
+        allowEdit = EditableOption.fromString(parameters.optString(EDITABLE, "")) == EditableOption.IN_APP
         includeMetadata = parameters.optBoolean(INCLUDE_METADATA, false)
 
         // If the user specifies a 0 or smaller width/height
@@ -676,7 +676,7 @@ class OSCameraPlugin : CordovaPlugin() {
             galleryAllowMultipleSelection = parameters.getBoolean(ALLOW_MULTIPLE)
             galleryLimit = parameters.optInt(GALLERY_LIMIT, 0)
             galleryIncludeMetadata = parameters.getBoolean(INCLUDE_METADATA)
-            galleryAllowEdit = EditableOption.fromString(parameters.optString(EDITABLE, null)) == EditableOption.IN_APP
+            galleryAllowEdit = EditableOption.fromString(parameters.optString(EDITABLE, "")) == EditableOption.IN_APP
         } catch (_: Exception) {
             sendError(IONCAMRError.GENERIC_CHOOSE_MULTIMEDIA_ERROR)
             return
@@ -875,6 +875,8 @@ class OSCameraPlugin : CordovaPlugin() {
              */
             fun fromString(value: String?): EditableOption {
                 if (value == null) return NO
+                // cordova plugin doesn't support external, but this allows for platform parity with iOS
+                if (value.equals("external", ignoreCase = true)) return IN_APP
                 return values().find { it.value.equals(value, ignoreCase = true) } ?: NO
             }
         }
