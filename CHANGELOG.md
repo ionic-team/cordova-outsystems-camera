@@ -6,5 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0]
 
-### 2026-03-XX
-- feat: Add implementation for `takePhoto`, `recordVideo`, `chooseFromGallery`, `pickLimitedGallery`, `chooseFromLimitedGallery`, `editPhoto` and `playVideo` on both Android and iOS.
+### 2026-04-10
+- Add implementation for `takePhoto`, `recordVideo`, `chooseFromGallery`, `editPhoto`, `editURIPhoto` and `playVideo` on both Android and iOS.
+- Add OutSystems Wrapper of Capacitor / Cordova plugin for ODC and O11.
