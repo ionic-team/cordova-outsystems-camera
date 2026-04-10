@@ -4,16 +4,11 @@
   "private": true,
   "dependencies": {},
   "scripts": {
-    "i": "cd ./packages/cordova-plugin && npm i && cd ../outsystems-wrapper && npm i",
-    "build": "cd ./packages/cordova-plugin && npm run build && cd ../outsystems-wrapper && npm run build",
-    "update:tag": "node ./scripts/change-extensibility.js",
-    "update:version": "node ./scripts/tag-applications-o11.js",
-    "deploy": "node ./scripts/deploy.js",
-    "download": "node ./scripts/download.js"
+    "i": "npm i && cd ./packages/cordova-plugin && npm i && cd ../outsystems-wrapper && npm i",
+    "build": "cd ./packages/cordova-plugin && npm run build && cd ../outsystems-wrapper && npm run build"
   },
   "devDependencies": {
     "@types/node": "^20.14.8",
-    "lerna": "^8.1.8",
     "typescript": "~5.4.5"
   }
 }
