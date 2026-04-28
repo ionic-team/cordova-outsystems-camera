@@ -4,7 +4,7 @@ repositories {
 }
 
 dependencies {
-  implementation 'io.ionic.libs:ioncamera-android:1.0.0@aar'
+  implementation 'io.ionic.libs:ioncamera-android:1.0.1@aar'
   implementation 'androidx.activity:activity-ktx:1.9.3'
   implementation 'androidx.exifinterface:exifinterface:1.3.6'
   implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
