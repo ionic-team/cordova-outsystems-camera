@@ -15,9 +15,9 @@
     <a href="https://github.com/ionic-team/ion-ios-camera">🍏 iOS Library</a>
   </p>
   <p align="center">
-    <a href="https://github.com/ionic-team/cordova-outsystems-geolocation/issues/new?labels=bug&template=bug-report---.md">🐛 Report Bug</a>
+    <a href="https://github.com/ionic-team/cordova-outsystems-camera/issues/new?labels=bug&template=bug-report---.md">🐛 Report Bug</a>
     ·
-    <a href="https://github.com/ionic-team/cordova-outsystems-geolocation/issues/new?labels=enhancement&template=feature-request---.md">   💡 Request Feature</a>
+    <a href="https://github.com/ionic-team/cordova-outsystems-camera/issues/new?labels=enhancement&template=feature-request---.md">   💡 Request Feature</a>
   </p>
 </div>
 
