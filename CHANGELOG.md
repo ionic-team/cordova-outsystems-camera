@@ -1,3 +1,5 @@
+## [1.0.1](https://github.com/ionic-team/cordova-outsystems-camera/compare/1.0.0...1.0.1) (2026-06-19)
+
 ## [1.0.1]
 
 ### 2026-04-27
