@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/ionic-team/cordova-outsystems-camera/compare/1.0.1...1.0.2) (2026-07-08)
+
+
+### Bug Fixes
+
+* **android:** bump ioncamera-android to 1.0.2 for Android 18 URI grant fix ([#18](https://github.com/ionic-team/cordova-outsystems-camera/issues/18)) ([65c3eb6](https://github.com/ionic-team/cordova-outsystems-camera/commit/65c3eb6555a1de77308d8e838e9350ae0dbc5ad8))
+
 ## [1.0.1](https://github.com/ionic-team/cordova-outsystems-camera/compare/1.0.0...1.0.1) (2026-06-19)
 
 ## [1.0.1]
