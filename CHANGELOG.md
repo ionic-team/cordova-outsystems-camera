@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/ionic-team/cordova-outsystems-camera/compare/1.0.2...1.0.3) (2026-07-30)
+
+
+### Bug Fixes
+
+* **ios:** bump ion-ios-camera to 1.0.5 for iOS 27 UIScene compliance ([#19](https://github.com/ionic-team/cordova-outsystems-camera/issues/19)) ([8364a3e](https://github.com/ionic-team/cordova-outsystems-camera/commit/8364a3e9901d52d1b576b08250785d324a6caccb))
+
 ## [1.0.2](https://github.com/ionic-team/cordova-outsystems-camera/compare/1.0.1...1.0.2) (2026-07-08)
 
 
