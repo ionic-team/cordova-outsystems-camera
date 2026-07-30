@@ -68,7 +68,7 @@
                 <source url="https://cdn.cocoapods.org/"/>
             </config>
             <pods use-frameworks="true">
-                <pod name="IONCameraLib" git="https://github.com/ionic-team/ion-ios-camera.git" branch="fix/RMET-5367/uiscene-migration"/>
+                <pod name="IONCameraLib" spec="1.0.5"/>
             </pods>
         </podspec>
     </platform>
