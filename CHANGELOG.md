@@ -1,3 +1,16 @@
+# [2.0.0](https://github.com/ionic-team/cordova-outsystems-camera/compare/1.0.3...2.0.0) (2026-09-01)
+
+
+### Features
+
+* **ios:** bump ion-ios-camera to 2.0.0 ([#21](https://github.com/ionic-team/cordova-outsystems-camera/issues/21)) ([7e1a4f7](https://github.com/ionic-team/cordova-outsystems-camera/commit/7e1a4f7ea9a67f43ffe014553c4f7207568b1b68))
+
+
+### BREAKING CHANGES
+
+* **ios:** the minimum supported iOS version is now 15.0. Apps
+with a deployment target of iOS 14 can no longer install this plugin.
+
 ## [1.0.3](https://github.com/ionic-team/cordova-outsystems-camera/compare/1.0.2...1.0.3) (2026-07-30)
 
 
