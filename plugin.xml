@@ -68,7 +68,7 @@
                 <source url="https://cdn.cocoapods.org/"/>
             </config>
             <pods use-frameworks="true">
-                <pod name="IONCameraLib" spec="1.0.5"/>
+                <pod name="IONCameraLib" spec="2.0.0"/>
             </pods>
         </podspec>
     </platform>
