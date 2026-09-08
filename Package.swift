@@ -13,7 +13,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/apache/cordova-ios.git", from: "8.0.0"),
+        .package(url: "https://github.com/apache/cordova-ios.git", branch: "master"),
         .package(url: "https://github.com/ionic-team/ion-ios-camera.git", exact: "2.0.0")
     ],
     targets: [
