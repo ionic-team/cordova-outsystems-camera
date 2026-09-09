@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/ionic-team/cordova-outsystems-camera/compare/2.0.0...2.1.0) (2026-09-09)
+
+
+### Features
+
+* **ios:** add Swift Package Manager support ([#22](https://github.com/ionic-team/cordova-outsystems-camera/issues/22)) ([9768b2e](https://github.com/ionic-team/cordova-outsystems-camera/commit/9768b2ee151a084f7f68d12805e93af70de3919e))
+
 # [2.0.0](https://github.com/ionic-team/cordova-outsystems-camera/compare/1.0.3...2.0.0) (2026-09-01)
 
 
