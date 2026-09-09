@@ -36,7 +36,7 @@
         <source-file src="packages/cordova-plugin/android/OSCameraPlugin.kt" target-dir="app/src/main/kotlin/org/com/outsystems/plugins/camera"/>
         <framework src="packages/cordova-plugin/libs/android/build.gradle" custom="true" type="gradleReference"/>
     </platform>
-    <platform name="ios">
+    <platform name="ios" package="swift">
         <config-file target="config.xml" parent="/*">
             <feature name="OSCameraPlugin">
                 <param name="ios-package" value="OSCameraPlugin"/>
@@ -68,7 +68,7 @@
                 <source url="https://cdn.cocoapods.org/"/>
             </config>
             <pods use-frameworks="true">
-                <pod name="IONCameraLib" spec="2.0.0"/>
+                <pod name="IONCameraLib" spec="2.0.0" nospm="true"/>
             </pods>
         </podspec>
     </platform>

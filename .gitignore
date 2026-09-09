@@ -6,3 +6,8 @@ node_modules/
 
 # IDEs
 .vscode/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
