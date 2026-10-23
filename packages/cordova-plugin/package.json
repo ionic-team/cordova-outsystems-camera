@@ -1,7 +1,7 @@
 {
   "name": "com.outsystems.plugins.camera",
   "displayName": "Camera",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Camera plugin for Cordova",
   "scripts": {
     "lint": "npm run eslint && npm run prettier -- --check",

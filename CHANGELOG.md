@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/ionic-team/cordova-outsystems-camera/compare/2.1.0...2.1.1) (2026-10-23)
+
+
+### Bug Fixes
+
+* **android:** keep image editor layouts when shrinking resources ([08456c1](https://github.com/ionic-team/cordova-outsystems-camera/commit/08456c10cc8d7ccde431098824c09bef5ec33643))
+
 # [2.1.0](https://github.com/ionic-team/cordova-outsystems-camera/compare/2.0.0...2.1.0) (2026-09-09)
 
 
