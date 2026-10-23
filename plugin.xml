@@ -35,6 +35,7 @@
         </edit-config>
         <source-file src="packages/cordova-plugin/android/OSCameraPlugin.kt" target-dir="app/src/main/kotlin/org/com/outsystems/plugins/camera"/>
         <framework src="packages/cordova-plugin/libs/android/build.gradle" custom="true" type="gradleReference"/>
+        <resource-file src="packages/cordova-plugin/android/res/raw/outsystems_camera_keep.xml" target="res/raw/outsystems_camera_keep.xml"/>
     </platform>
     <platform name="ios" package="swift">
         <config-file target="config.xml" parent="/*">
